@@ -1,0 +1,18 @@
+.header{
+    height: 6rem;
+    width: 100%;
+    background: var(--White);
+    border-bottom: 0.0625rem solid var(--lines-light);
+    display: flex;
+    >div:nth-child(1){
+        padding: 2rem 2rem 2.37rem 2.12rem;
+        cursor: pointer;
+        z-index: 999;
+    //    border-right:0.0625rem solid var(--lines-light);
+    }
+    transition: background 0.1s ease-in-out, border-bottom 0.1s ease-in-out;
+    &.darkMode{
+        background: var(--Dark-Grey);
+        border-bottom: 0.0625rem solid var(--lines-dark);
+    }
+}
