@@ -1,5 +1,4 @@
-export const placeholderData = {
-    boards: [
+const boards = [
       {
         name: "Platform Launch",
         slug: "platform-launch",
@@ -429,5 +428,9 @@ export const placeholderData = {
           }
         ]
       }
-    ]
-  }
+    ];
+
+  module.exports = {
+    boards
+  };
+  

@@ -5,12 +5,15 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface ThemeContextProps {
     darkMode: boolean;
     toggleDarkMode: () => void;
+    sidebarHidden: boolean;
+    toggleSidebarVisibility: () => void;
   }
   
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider = ({ children } : {children: React.ReactNode}) => {
   const [darkMode, setDarkMode] = useState(false);
+  const [sidebarHidden, setVisibleHidden] = useState(false);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -34,8 +37,12 @@ export const ThemeProvider = ({ children } : {children: React.ReactNode}) => {
     });
   };
 
+  const toggleSidebarVisibility = () =>{
+    setVisibleHidden((prevMode) => !prevMode);
+  }
+
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode, sidebarHidden, toggleSidebarVisibility }}>
       {children}
     </ThemeContext.Provider>
   );

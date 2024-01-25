@@ -1,4 +1,7 @@
 .header{
+    position: fixed;
+    left:0;
+    top:0;
     height: 6rem;
     width: 100%;
     background: var(--White);
@@ -8,11 +11,22 @@
         padding: 2rem 2rem 2.37rem 2.12rem;
         cursor: pointer;
         z-index: 999;
-    //    border-right:0.0625rem solid var(--lines-light);
     }
     transition: background 0.1s ease-in-out, border-bottom 0.1s ease-in-out;
     &.darkMode{
         background: var(--Dark-Grey);
         border-bottom: 0.0625rem solid var(--lines-dark);
+    }
+    &.sidebarHidden{
+        h1{
+            padding-left: calc(var(--Sidebar-Width-Min) + 1.5rem);
+        }
+    }
+    h1{
+        position: absolute;
+        left: 0;
+        top: 1.81rem;
+        padding-left: calc(var(--Sidebar-Width-Max) + 1.5rem);
+        transition: padding-left 0.1s ease-in-out;
     }
 }

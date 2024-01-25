@@ -7,8 +7,14 @@
     }
 }
 
+.sidebarContainer{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
 .sidenav{
-    width: 18.75rem;
+    width: var(--Sidebar-Width-Max);
     height: 100vh;
     height: -webkit-fill-available;
     max-height: 100vh;
@@ -131,7 +137,7 @@
     position: absolute;
     top:0;
     left:-13.6rem;
-    width: 13.6rem;
+    width: var(--Sidebar-Width-Min);
     height: 6rem;
     border-right:0.0625rem solid var(--lines-light);
     .darkMode &{

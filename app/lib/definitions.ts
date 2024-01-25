@@ -3,6 +3,7 @@ interface RootObject {
 }
 interface Board {
     name: string;
+    slug: string;
     columns: Column[];
 }
 interface Column {
@@ -20,4 +21,17 @@ interface Subtask {
     isCompleted: boolean;
 }
 
-export type { RootObject, Board, Column, Task, Subtask};
+interface TaskData{
+    column_name: string;
+    task_title: string;
+    task_id: string;
+    subtasks_count: string;
+    subtasks_completed: string;
+}
+
+export type PageProps = {
+    children:React.ReactNode;
+    boards: Board[]
+  };
+
+export type { RootObject, Board, Column, Task, Subtask, TaskData};
