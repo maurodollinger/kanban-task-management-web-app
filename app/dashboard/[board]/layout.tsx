@@ -1,14 +1,14 @@
 'use client';
 
 import { useTheme } from '@/app/contexts/ThemeContext';
-import { useDragScroll } from '@/app/hooks/useDragScroll';
+import { useScrollContainer } from 'react-indiana-drag-scroll';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const { sidebarHidden } = useTheme();
-    const [ref] = useDragScroll();
+    const scrollContainer = useScrollContainer();
 
     return (
-        <div ref={ref} className={`dashboard-main ${sidebarHidden ? 'paddingOn' : ''}`}>
+        <div ref={scrollContainer.ref} className={`dashboard-main ${sidebarHidden ? 'paddingOn' : ''}`}>
             {children}
         </div>
     )
