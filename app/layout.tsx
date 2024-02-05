@@ -15,7 +15,9 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={jakarta.className}>{children}</body>
+      <body className={jakarta.className}>
+        {children}
+      </body>
     </html>
   )
 }

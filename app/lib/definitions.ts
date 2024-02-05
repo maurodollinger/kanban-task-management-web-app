@@ -8,7 +8,8 @@ interface Board {
 }
 interface Column {
     name: string;
-    tasks: (Task | Task)[];
+    tasks?: (Task | Task)[];
+    placeholder?: boolean;
 }
 interface Task {
     title: string;
@@ -21,17 +22,33 @@ interface Subtask {
     isCompleted: boolean;
 }
 
-interface TaskData{
+// FOR API
+interface TaskData {
     column_name: string;
     task_title: string;
     task_id: string;
-    subtasks_count: string;
-    subtasks_completed: string;
+    task_status?: string;
+    task_description?: string;
+    subtasks_count?: string;
+    subtasks_completed?: string;
+    subtasks_data?: SubTaskData[]
+}
+
+interface SubTaskData {
+    subtask_task_id?: string;
+    subtask_id?: string;
+    subtask_title: string;
+    subtask_iscompleted?: boolean;
+}
+
+interface ColumnNamesByBoard {
+    board_slug: string;
+    column_names: string[];
 }
 
 export type PageProps = {
-    children:React.ReactNode;
+    children: React.ReactNode;
     boards: Board[]
-  };
+};
 
-export type { RootObject, Board, Column, Task, Subtask, TaskData};
+export type { RootObject, Board, Column, Task, Subtask, TaskData, SubTaskData, ColumnNamesByBoard };

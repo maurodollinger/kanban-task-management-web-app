@@ -1,32 +1,97 @@
-.header{
+.header {
     position: fixed;
-    left:0;
-    top:0;
+    left: 0;
+    top: 0;
     height: 6rem;
     width: 100%;
     background: var(--White);
     border-bottom: 0.0625rem solid var(--lines-light);
     display: flex;
-    >div:nth-child(1){
+
+
+
+    >div:nth-child(1) {
         padding: 2rem 2rem 2.37rem 2.12rem;
         cursor: pointer;
         z-index: 999;
     }
-    transition: background 0.1s ease-in-out, border-bottom 0.1s ease-in-out;
-    &.darkMode{
+
+    transition: background 0.1s ease-in-out,
+    border-bottom 0.1s ease-in-out;
+
+    &.darkMode {
         background: var(--Dark-Grey);
         border-bottom: 0.0625rem solid var(--lines-dark);
     }
-    &.sidebarHidden{
-        h1{
+
+    &.sidebarHidden {
+        h1 {
             padding-left: calc(var(--Sidebar-Width-Min) + 1.5rem);
         }
     }
-    h1{
+
+    h1 {
         position: absolute;
         left: 0;
         top: 1.81rem;
         padding-left: calc(var(--Sidebar-Width-Max) + 1.5rem);
         transition: padding-left 0.1s ease-in-out;
+    }
+
+    .actions {
+        margin-left: auto;
+        //   margin-top: 1.25rem;
+        margin-right: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        button {
+            height: 3rem;
+        }
+    }
+
+    @media screen and (max-width:768px) and (min-width:601px) {
+        height: 5rem;
+
+        >div:nth-child(1) {
+            padding: 2rem 0 1.38rem 1.62rem;
+        }
+
+
+        h1 {
+            font-size: 1.25rem;
+            padding-left: calc(var(--Sidebar-Width-Tablet-Max) + 1.5rem);
+            top: 1.75rem;
+        }
+
+        &.sidebarHidden {
+            h1 {
+                padding-left: calc(var(--Sidebar-Width-Tablet-Min) + 1.5rem);
+            }
+        }
+    }
+
+    @media screen and (max-width:600px) {
+        height: 4rem;
+
+        >div:nth-child(1) {
+            padding: 1.25rem 1rem 1.19rem 1rem;
+        }
+
+        h1 {
+            display: flex;
+            gap: 0.5rem;
+            height: 1.4375rem;
+            align-items: center;
+            position: relative;
+            padding-left: 0;
+            top: 1.31rem;
+        }
+    }
+
+    .popup {
+        top: calc(100% + 0.5rem);
+        right: 2rem;
     }
 }

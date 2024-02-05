@@ -12,7 +12,8 @@ const SidenavActions: React.FC<SidenavActionsProps> = ({ handleHideSidebar }) =>
       <ColorModeSwitch />
       <span onClick={handleHideSidebar} className={styles.btnHideSidebar}>
         <p className='heading-m'>
-          <HideIcon />Hide Sidebar
+          <HideIcon />
+          <span>Hide Sidebar</span>
         </p>
       </span>
     </div>
