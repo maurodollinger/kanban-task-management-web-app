@@ -43,8 +43,8 @@ export const BoardProvider = ({ children, initialBoards, columnNames }: BoardPro
     useEffect(() => {
         if (currentBoard) {
             const names = columnNames.filter((c) => c.board_slug === currentBoard.slug).map((c) => c.column_names).flat();
-            let columns = [];
-            for (var i = 0; i < names.length; i++) {
+            const columns = [];
+            for (let i = 0; i < names.length; i++) {
                 columns.push({ name: names[i] })
             }
             setCurrentColumns(columns);

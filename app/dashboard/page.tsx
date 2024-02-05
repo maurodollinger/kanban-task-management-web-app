@@ -1,6 +1,5 @@
 'use client';
 import { useTheme } from "../contexts/ThemeContext";
-import { Board } from "../lib/definitions";
 
 type PageProps = {
     children: React.ReactNode;

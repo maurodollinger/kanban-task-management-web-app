@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "../custom-button/button";
 import CrossIcon from '@/public/assets/icon-cross.svg';
 import { useBoardContext } from "@/app/contexts/BoardContext";

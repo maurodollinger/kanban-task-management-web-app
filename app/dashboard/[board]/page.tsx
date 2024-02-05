@@ -8,7 +8,7 @@ export default async function Page({ params }: { params: { board: string } }) {
   const uniqueTypes = Array.from(new Set(columnsData.map(item => item.column_name)));
 
 
-  const columns = new Array;
+  const columns: { name: string; tasks: TaskData[] | null; }[] = [];
   uniqueTypes.forEach(type => {
     const filtered = columnsData.filter((col) => col.column_name === type)
 
