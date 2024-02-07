@@ -1,6 +1,7 @@
 import { fetchColumns } from '@/app/lib/data';
 import { TaskData } from '@/app/lib/definitions';
 import Card from '@/app/ui/card';
+import Button from '@/app/ui/custom-button/button';
 import Link from 'next/link';
 
 export default async function Page({ params }: { params: { board: string } }) {
@@ -24,7 +25,7 @@ export default async function Page({ params }: { params: { board: string } }) {
   return (
     <>
       {
-        (columns && columns.length > 0) && (
+        (columns && columns.length > 0) ? (
           <>
             {/* TABLE HEADER*/}
             <div className='grid'>
@@ -74,6 +75,12 @@ export default async function Page({ params }: { params: { board: string } }) {
             </div>
           </>
         )
+          : (
+            <div className='empty-board'>
+              <p className='heading-l'>This board is empty. Create a new column to get started</p>
+              <Link href='?modal=edit-board'><Button buttonType='primary'>+ Add New Column</Button></Link>
+            </div>
+          )
       }
     </>
   )

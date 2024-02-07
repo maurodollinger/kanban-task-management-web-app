@@ -83,27 +83,28 @@ export default function Header() {
                 : <h1 className='heading-xl'>{boardName}</h1>
             }
 
-            <div className={styles.actions}>
-                <Link href='?modal=create-task'>
-                    <Button buttonType='primary'>
-                        + Add New Task
-                    </Button>
-                </Link>
-                <button onClick={handlePopUpVisible}>
-                    <Image
-                        src='/assets/icon-vertical-ellipsis.svg'
-                        alt='icon edit'
-                        width={5}
-                        height={20}>
+            {boardSlug && (
+                <div className={styles.actions}>
+                    <Link href='?modal=create-task'>
+                        <Button buttonType='primary'>
+                            + Add New Task
+                        </Button>
+                    </Link>
+                    <button onClick={handlePopUpVisible}>
+                        <Image
+                            src='/assets/icon-vertical-ellipsis.svg'
+                            alt='icon edit'
+                            width={5}
+                            height={20}>
 
-                    </Image>
-                </button>
-                <Popup visible={popupVisible}>
-                    <Link href='?modal=edit-board' onClick={handlePopUpVisible}><Button buttonType='primary-s'>Edit Board</Button></Link>
-                    <Link href='?modal=delete&type=board' onClick={handlePopUpVisible}><Button buttonType='destructive' >Delete Board</Button></Link>
-                </Popup>
-            </div>
-
+                        </Image>
+                    </button>
+                    <Popup visible={popupVisible}>
+                        <Link href='?modal=edit-board' onClick={handlePopUpVisible}><Button buttonType='primary-s'>Edit Board</Button></Link>
+                        <Link href='?modal=delete&type=board' onClick={handlePopUpVisible}><Button buttonType='destructive' >Delete Board</Button></Link>
+                    </Popup>
+                </div>
+            )}
         </header>
     )
 }

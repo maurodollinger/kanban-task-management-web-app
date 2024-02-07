@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function Popup({ visible, children }: { visible: boolean, children: React.ReactNode }) {
+export default function Popup({ visible = false, children }: { visible: boolean, children: React.ReactNode }) {
     const [popupVisible, setPopupVisible] = useState(visible);
     const popUpRef = useRef<HTMLDivElement>(null);
 

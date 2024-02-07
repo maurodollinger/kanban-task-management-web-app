@@ -8,9 +8,11 @@ import Popup from "../popup/popup";
 import Link from "next/link";
 import Button from "../custom-button/button";
 import Image from "next/image";
+import { useModal } from "@/app/contexts/ModalContext";
 
 
-export default function ViewTask({ taskId }: { taskId: string | undefined }) {
+export default function ViewTask() {
+    const { taskId } = useModal();
     const [taskData, setTaskData] = useState<TaskData>();
     const [subtasks, setSubtasks] = useState<SubTaskData[] | undefined>([]);
     const [subtasksCompleted, setSubtasksCompleted] = useState(0);

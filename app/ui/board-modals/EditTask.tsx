@@ -7,6 +7,7 @@ import { jakarta } from "../fonts";
 import { useBoardContext } from "@/app/contexts/BoardContext";
 import { SubTaskData, TaskData } from "@/app/lib/definitions";
 import { getTask } from "@/app/lib/actions";
+import { useModal } from "@/app/contexts/ModalContext";
 
 const randomSubtasks = [
     { subtask_title: 'Make coffee' },
@@ -24,7 +25,8 @@ function getRandomColumnName() {
     return randomSubtasks[randomIndex].subtask_title;
 }
 
-export default function EditTask({ taskId }: { taskId: string | undefined }) {
+export default function EditTask() {
+    const { taskId } = useModal();
     const [taskData, setTaskData] = useState<TaskData>();
     const [columnInputs, setColumnInputs] = useState<SubTaskData[] | undefined>([]);
     const [selectedOption, setSelectedOption] = useState('');

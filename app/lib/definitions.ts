@@ -4,12 +4,14 @@ interface RootObject {
 interface Board {
     name: string;
     slug: string;
+    id: string;
     columns: Column[];
 }
 interface Column {
+    id: string;
     name: string;
     tasks?: (Task | Task)[];
-    placeholder?: boolean;
+    placeholder?: string;
 }
 interface Task {
     title: string;
@@ -46,9 +48,13 @@ interface ColumnNamesByBoard {
     column_names: string[];
 }
 
+type columnNames = {
+    name: string
+}
+
 export type PageProps = {
     children: React.ReactNode;
     boards: Board[]
 };
 
-export type { RootObject, Board, Column, Task, Subtask, TaskData, SubTaskData, ColumnNamesByBoard };
+export type { RootObject, Board, Column, Task, Subtask, TaskData, SubTaskData, ColumnNamesByBoard, columnNames };

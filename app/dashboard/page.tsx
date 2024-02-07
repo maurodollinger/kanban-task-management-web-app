@@ -8,14 +8,14 @@ type PageProps = {
 export default function Page({ children }: PageProps) {
     const { sidebarHidden } = useTheme();
     return (
-        <>
+        <div className={`dashboard-select ${sidebarHidden ? 'paddingOn' : ''}`}>
             {children ? (
                 children
             ) : (
-                <div className={`emptyBoard ${sidebarHidden ? 'paddingOn' : ''}`}>
-                    <p>Select a board from the sidebar to open it</p>
+                <div className='empty-board'>
+                    <p className="heading-l">Select a board on the sidebar to get started</p>
                 </div>
             )}
-        </>
+        </div>
     )
 }
