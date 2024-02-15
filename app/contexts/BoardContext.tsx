@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Board, Column, ColumnNamesByBoard } from '../lib/definitions';
 import { useParams } from 'next/navigation';
 import { getBoards } from '../lib/actions';
-import { getRandomColumnName, getRandomUUID } from '../lib/utils';
+import { getRandomColumnName } from '../lib/utils';
 
 
 interface BoardContextProp {
@@ -32,6 +32,8 @@ export const BoardProvider = ({ children }: BoardProviderProps) => {
         getBoards().then((result) => {
             setBoards(result.boards);
             setColumnNames(result.columns);
+
+            console.log(result.columns);
         });
     };
 
@@ -52,10 +54,10 @@ export const BoardProvider = ({ children }: BoardProviderProps) => {
 
     useEffect(() => {
         if (currentBoard) {
-            const names = columnNames.filter((c) => c.board_slug === currentBoard.slug).map((c) => c.column_names).flat();
+            const names = columnNames.filter((c) => c.board_slug === currentBoard.slug).map((c) => c.board_columns).flat();
             const columns = [];
             for (let i = 0; i < names.length; i++) {
-                columns.push({ id: getRandomUUID(), name: names[i], placeholder: getRandomColumnName().placeholder })
+                columns.push({ name: names[i].name, position: names[i].position, id: names[i].id, placeholder: getRandomColumnName().placeholder })
             }
             setCurrentColumns(columns);
         }

@@ -5,6 +5,7 @@
   ],
   "extends": [
     "plugin:@typescript-eslint/recommended"
+    // "plugin:@next/next/recommended"
   ],
   "rules": {
     // "@typescript-eslint/no-array-constructor": [{ "allowArrayConstructor": true }]

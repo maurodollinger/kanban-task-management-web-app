@@ -11,9 +11,25 @@ const randomColumnNames = [
     { placeholder: 'On Hold' },
     { placeholder: 'Done' }];
 
+const randomSubtasks = [
+    { placeholder: 'Make coffee' },
+    { placeholder: 'Drink coffee & smile' },
+    { placeholder: 'Define user model' },
+    { placeholder: 'Add auth endpoints' },
+    { placeholder: 'Implement responsive design' },
+    { placeholder: 'Write unit tests' },
+    { placeholder: 'Optimize database queries' },
+    { placeholder: 'Design user interface mockups' },
+];
+
 export function getRandomColumnName() {
     const randomIndex = Math.floor(Math.random() * randomColumnNames.length);
     return randomColumnNames[randomIndex];
+}
+
+export function getRandomSubtaskName() {
+    const randomIndex = Math.floor(Math.random() * randomSubtasks.length);
+    return randomSubtasks[randomIndex];
 }
 
 export function getRandomUUID() {

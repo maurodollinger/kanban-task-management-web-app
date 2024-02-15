@@ -6,10 +6,10 @@ import { useTheme } from '@/app/contexts/ThemeContext';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from '@react-hook/media-query';
-import Button from '../../custom-button/button';
+import Button from '../custom-button/button';
 import Link from 'next/link';
 import { useBoardContext } from '@/app/contexts/BoardContext';
-import Popup from '../../popup/popup';
+import Popup from '../popup/popup';
 
 export default function Header() {
     const { boards } = useBoardContext();
@@ -71,7 +71,8 @@ export default function Header() {
             </div>
             {hideOnMobile
                 ? (
-                    <h1 className='heading-l'>{boardName}
+                    <Link href='?modal=menu'><h1 className='heading-l'>
+                        {boardName}
                         <Image
                             src='/assets/icon-chevron-down.svg'
                             alt='icon down'
@@ -79,6 +80,7 @@ export default function Header() {
                             height={7}
                             priority={true} />
                     </h1>
+                    </Link>
                 )
                 : <h1 className='heading-xl'>{boardName}</h1>
             }
@@ -87,7 +89,7 @@ export default function Header() {
                 <div className={styles.actions}>
                     <Link href='?modal=create-task'>
                         <Button buttonType='primary'>
-                            + Add New Task
+                            +{!hideOnMobile && (' Add New Task')}
                         </Button>
                     </Link>
                     <button onClick={handlePopUpVisible}>

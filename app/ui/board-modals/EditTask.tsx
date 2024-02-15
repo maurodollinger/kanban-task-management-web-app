@@ -1,110 +1,147 @@
 'use client';
 
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../custom-button/button";
 import CrossIcon from '@/public/assets/icon-cross.svg';
 import { jakarta } from "../fonts";
 import { useBoardContext } from "@/app/contexts/BoardContext";
 import { SubTaskData, TaskData } from "@/app/lib/definitions";
-import { getTask } from "@/app/lib/actions";
+import { getTask, updateSubtasks, updateTask } from "@/app/lib/actions";
 import { useModal } from "@/app/contexts/ModalContext";
+import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
+import { MyInput } from "../myInput";
+import { getRandomSubtaskName } from "@/app/lib/utils";
 
-const randomSubtasks = [
-    { subtask_title: 'Make coffee' },
-    { subtask_title: 'Drink coffee & smile' },
-    { subtask_title: 'Define user model' },
-    { subtask_title: 'Add auth endpoints' },
-    { subtask_title: 'Implement responsive design' },
-    { subtask_title: 'Write unit tests' },
-    { subtask_title: 'Optimize database queries' },
-    { subtask_title: 'Design user interface mockups' },
-];
-
-function getRandomColumnName() {
-    const randomIndex = Math.floor(Math.random() * randomSubtasks.length);
-    return randomSubtasks[randomIndex].subtask_title;
-}
 
 export default function EditTask() {
-    const { taskId } = useModal();
+    const { taskId, router } = useModal();
     const [taskData, setTaskData] = useState<TaskData>();
-    const [columnInputs, setColumnInputs] = useState<SubTaskData[] | undefined>([]);
-    const [selectedOption, setSelectedOption] = useState('');
-    const { currentColumns } = useBoardContext();
+    const [subtasksInputs, setSubtasksInputs] = useState<{ name: string, id: string, placeholder: string }[]>([{ name: '', id: '', placeholder: getRandomSubtaskName().placeholder }]);
+    const [selectedOption, setSelectedOption] = useState<{ id: string, name: string }>({ id: '', name: '' });
+    const { currentBoard, currentColumns } = useBoardContext();
 
 
-    const handleSelectChange = (event: { target: { value: SetStateAction<string>; }; }) => {
-        setSelectedOption(event.target.value);
-    };
-
-    const handleAddColumn = () => {
-        if (columnInputs && columnInputs?.length > 0) setColumnInputs([...columnInputs, { subtask_title: getRandomColumnName() }]);
-    };
-
-    const handleRemoveColumn = (index: number) => {
-        if (columnInputs && columnInputs?.length > 0) {
-            const updatedColumns = [...columnInputs];
-            updatedColumns.splice(index, 1);
-            setColumnInputs(updatedColumns);
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = e.target.value;
+        const selectedId = e.target.options[e.target.selectedIndex].dataset.id;
+        if (selectedId) {
+            const selectedOption = { name: selectedValue, id: selectedId };
+            setSelectedOption(selectedOption);
         }
     };
+
 
     useEffect(() => {
         if (taskId != undefined) {
             getTask(taskId).then((result) => {
-                setTaskData(result[0]);
-                const subtasks = result[0].subtasks_data;
+                const _taskdata = result[0];
+                setTaskData(_taskdata);
+                const subtasks = _taskdata.subtasks_data;
+                const column_id = _taskdata.task_column_id;
+                if (_taskdata.task_status) setSelectedOption({ id: column_id, name: _taskdata.task_status })
                 if (subtasks && subtasks.length > 0) {
-                    setColumnInputs(subtasks);
+                    const updatedSubtasks = [];
+                    for (const st of subtasks) {
+                        if (st.subtask_id) updatedSubtasks.push({ name: st.subtask_title, id: st.subtask_id, placeholder: getRandomSubtaskName().placeholder })
+                    }
+                    setSubtasksInputs(updatedSubtasks);
                 }
             });
         }
 
     }, [taskId])
 
+    const generateNewSubtask = () => {
+        return { name: '', placeholder: getRandomSubtaskName().placeholder };
+    }
+
     return (
+        taskData &&
         <>
             <h1 className="heading-l">Edit Task</h1>
-            <div className="inputs-container">
-                <div className="input-group">
-                    <label className="body-m">Title</label>
-                    <input type="text" placeholder="e.g. Take coffee break" value={taskData?.task_title}></input>
-                </div>
-                <div className="input-group">
-                    <label className="body-m">Description</label>
-                    <textarea className={jakarta.className} placeholder="e.g. It’s always good to take a break. This 15 minute break will 
-recharge the batteries a little." value={taskData?.task_description}></textarea>
-                </div>
-                <div className="input-group">
-                    {columnInputs && columnInputs.length > 0 && <label className="body-m">Subtasks</label>}
-                    <div className="inputs-new-container">
-                        {columnInputs && columnInputs.map((input, index) => (
-                            <div className="input-new" key={index}>
-                                {input.subtask_id ? <input type="text" value={`e.g. ${input.subtask_title}`} />
-                                    : <input type="text" placeholder={`e.g. ${input.subtask_title}`} />
-                                }
-                                <button onClick={() => handleRemoveColumn(index)}>
-                                    <CrossIcon />
-                                </button>
-                            </div>
-                        ))}
-                        <Button buttonType="secondary" onClick={handleAddColumn}>+ Add New Subtask</Button>
-                    </div>
-                </div>
-                <div className="input-group">
-                    <label className="body-m">Status</label>
-                    <select id="dropdown" value={selectedOption} onChange={handleSelectChange} className="dropdown-select">
-                        {currentColumns && currentColumns.map((option, index) => (
-                            <option key={index} value={option.name} className="dropdown-option">
-                                {option.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-            <div className="buttons-container">
-                <Button buttonType="primary-s" onClick={() => {/**/ }}>Save Changes</Button>
-            </div>
+            <Formik
+                initialValues={{
+                    title: taskData.task_title,
+                    description: taskData.task_description,
+                    subtasksValues: subtasksInputs
+                }}
+                onSubmit={(values, { setSubmitting }) => {
+                    const title = values.title;
+                    const description = values.description || '';
+                    const status = selectedOption.name;
+                    const id = taskId;
+                    const column_id = selectedOption.id;
+                    if (id) {
+                        const taskValues = {
+                            id,
+                            title,
+                            description,
+                            column_id,
+                            status
+                        }
+                        updateTask(taskValues).then(() => {
+                            const subtasks: SubTaskData[] = [];
+                            values.subtasksValues.forEach((st) => {
+                                const title = st.name;
+                                const id = st.id;
+                                if (title !== '' && id) subtasks.push({ subtask_id: id, subtask_title: title, })
+                                else subtasks.push({ subtask_id: '', subtask_title: title })
+                            })
+                            if (subtasks.length > 0) updateSubtasks(taskId, subtasks);
+                        }).finally(() => {
+                            setSubmitting(false);
+                            if (currentBoard) router.push(`/dashboard/${currentBoard.slug}`);
+                        });
+                    }
+                }}>
+                {({ isSubmitting, values }) => (
+                    <FieldArray name="subtasksValues">
+                        {({ push, remove }) => (
+                            <Form>
+                                <div className="inputs-container">
+                                    <div className="input-group">
+                                        <label className="body-m">Title</label>
+                                        <Field name="title" placeholder="e.g. Take coffee break" component={MyInput} />
+                                        <ErrorMessage component="span" name="title" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="body-m">Description</label>
+                                        <Field as="textarea" name='description' className={jakarta.className} placeholder="e.g. It’s always good to take a break. This 15 minute break will 
+        recharge the batteries a little."></Field>
+                                    </div>
+                                    <div className="input-group">
+                                        {values.subtasksValues && values.subtasksValues.length > 0 && <label className="body-m">Subtasks</label>}
+                                        <div className="inputs-new-container">
+                                            {values.subtasksValues && values.subtasksValues.map((input, index) => (
+                                                <div className="input-new" key={index}>
+                                                    <Field name={`subtasksValues[${index}].name`} placeholder={`e.g. ${input.placeholder}`} component={MyInput} />
+                                                    <button type="button" onClick={() => remove(index)}>
+                                                        <CrossIcon />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <Button buttonType="secondary" onClick={() => push(generateNewSubtask())}>+ Add New Subtask</Button>
+                                        </div>
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="body-m">Status</label>
+                                        <select id="dropdown" value={selectedOption.name} onChange={handleSelectChange} className="dropdown-select">
+                                            {currentColumns && currentColumns.map((option, index) => (
+                                                <option key={index} value={option.name} data-id={option.id} className="dropdown-option">
+                                                    {option.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="buttons-container">
+                                    <Button buttonType="primary-s" type="submit" disabled={isSubmitting}>Save Changes</Button>
+                                </div>
+                            </Form>
+                        )}
+                    </FieldArray>
+                )}
+            </Formik>
         </>
     )
 }

@@ -10,6 +10,11 @@
         width: 100%;
         margin-left: 0;
     }
+
+    @media screen and (max-width:600px) {
+        width: 100%;
+        margin-left: 0;
+    }
 }
 
 .dashboard-loading {
@@ -96,6 +101,7 @@
     transition: margin-left 0.2s ease-in-out;
     color: var(--Medium-Grey);
 
+
     &.paddingOn {
         width: 100%;
         margin-left: 0;
@@ -109,10 +115,12 @@
 
 .grid {
     padding: 1.5rem;
+    width: 100%;
 
     .gridRow {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        //display: grid;
+        // grid-template-columns: repeat(auto-fill, 17.5rem);
+        display: flex;
         gap: 1.5rem;
 
         &.rowHead {
@@ -191,8 +199,13 @@
 
 }
 
+.newColumnContainer {
+    margin-left: auto;
+}
+
 .column {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    min-width: 17.5rem;
 }

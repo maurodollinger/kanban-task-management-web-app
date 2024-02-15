@@ -138,7 +138,7 @@ button {
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.8;
   }
 
   .modal & {
@@ -216,5 +216,68 @@ button {
   .title-modal & {
     top: 1rem;
     right: 2rem;
+  }
+}
+
+.login {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  .login-form {
+    width: 100%;
+    max-width: 300px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+
+
+    label {
+      font-size: 0.8rem;
+      color: var(--Medium-Grey);
+
+    }
+
+    .darkMode & label {
+      color: var(--White);
+    }
+
+    label.error {
+      color: var(--Red);
+    }
+
+    input {
+      color: var(--Black);
+
+      border: 1px solid rgba(130, 143, 163, 0.25);
+      background-color: transparent;
+      height: 2.5rem;
+      border-radius: 0.25rem;
+
+      padding: 0.5rem 1rem;
+
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.25);
+      }
+
+      .darkMode & {
+        color: var(--White);
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.25);
+        }
+      }
+    }
+
+    button {
+      height: 2.5rem;
+
+      svg {
+        height: 0.7rem;
+      }
+    }
   }
 }

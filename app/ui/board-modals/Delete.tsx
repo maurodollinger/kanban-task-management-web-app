@@ -3,7 +3,7 @@ import Button from "../custom-button/button";
 import { useBoardContext } from "@/app/contexts/BoardContext";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { deleteBoard, getTask } from "@/app/lib/actions";
+import { deleteBoard, deleteTask, getTask } from "@/app/lib/actions";
 import { useModal } from "@/app/contexts/ModalContext";
 
 
@@ -22,11 +22,17 @@ export default function Delete() {
             setDisabled(true)
             deleteBoard(currentBoard?.id).then(() => {
                 updateBoards();
+            }).finally(() => {
                 router.push('/dashboard');
             })
         }
-        if (taskId) {
-
+        if (taskId && type === 'task') {
+            setDisabled(true);
+            deleteTask(taskId).then(() => {
+                updateBoards();
+            }).finally(() => {
+                router.push(`/dashboard/${currentBoard?.slug}`);
+            })
         }
     }
 

@@ -17,7 +17,7 @@ export default function BoardLinks({ boards }: { boards: Board[] }) {
         updateCurrentBoard(updatedBoard);
     }
     return (
-        <div>
+        <div className={styles.boardLinks}>
             <p className='heading-s'>ALL BOARDS ({boards.length})</p>
             <ul>
                 {boards.map((board, index) => (

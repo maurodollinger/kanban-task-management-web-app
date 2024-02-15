@@ -27,8 +27,10 @@ interface Subtask {
 // FOR API
 interface TaskData {
     column_name: string;
+    column_position: number;
     task_title: string;
     task_id: string;
+    task_column_id: string;
     task_status?: string;
     task_description?: string;
     subtasks_count?: string;
@@ -45,7 +47,8 @@ interface SubTaskData {
 
 interface ColumnNamesByBoard {
     board_slug: string;
-    column_names: string[];
+    board_id: string;
+    board_columns: { name: string, position: number, id: string };
 }
 
 type columnNames = {

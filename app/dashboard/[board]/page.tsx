@@ -1,27 +1,41 @@
-import { fetchColumns } from '@/app/lib/data';
+import { fetchColumnsData } from '@/app/lib/data';
 import { TaskData } from '@/app/lib/definitions';
 import Card from '@/app/ui/card';
 import Button from '@/app/ui/custom-button/button';
 import Link from 'next/link';
 
+
+async function getColumns(board: string) {
+  try {
+    const columnsData = await fetchColumnsData(board);
+
+    const uniqueTypes = Array.from(new Set(columnsData.map(item => item.column_name)));
+    const columns: { name: string; position: number; tasks: TaskData[] | null; }[] = [];
+
+    uniqueTypes.forEach(type => {
+      const filtered = columnsData.filter((col) => col.column_name === type)
+
+      if (filtered[0].task_title !== null) {
+        columns.push({ name: type, position: filtered[0].column_position, tasks: [...filtered] });
+      } else {
+        columns.push({ name: type, position: filtered[0].column_position, tasks: null });
+      }
+    });
+
+    columns.sort((a, b) => a.position - b.position);
+
+    return columns;
+  }
+  catch (error) {
+    console.error('Error fetching columns:', error);
+    return [];
+  }
+}
+
 export default async function Page({ params }: { params: { board: string } }) {
-  const columnsData = await fetchColumns(params.board);
-  const uniqueTypes = Array.from(new Set(columnsData.map(item => item.column_name)));
+  const columns = await getColumns(params.board);
 
-
-  const columns: { name: string; tasks: TaskData[] | null; }[] = [];
-  uniqueTypes.forEach(type => {
-    const filtered = columnsData.filter((col) => col.column_name === type)
-
-    if (filtered[0].task_title !== null) {
-      columns.push({ name: type, tasks: [...filtered] });
-    } else {
-      columns.push({ name: type, tasks: null });
-    }
-  });
-
-  //console.log(columns);
-
+  //console.log(columns, 'fetch columns');
   return (
     <>
       {
@@ -63,7 +77,7 @@ export default async function Page({ params }: { params: { board: string } }) {
                       )}
                     </div>
                   ))}
-                <div className='column'>
+                <div className='column newColumnContainer'>
                   <Link href='?modal=edit-board'>
                     <button className='btnNewColumn heading-xl'>
                       + New Column
@@ -85,18 +99,4 @@ export default async function Page({ params }: { params: { board: string } }) {
     </>
   )
 }
-/*
 
-
-export async function generateStaticParams() {
-
-    const boardsNames = [
-      { slug: 'platform-launch' },
-      { slug: 'marketing-plan' },
-      { slug: 'roadmap' },
-    ];
-  
-    return boardsNames.map((board) => ({
-      params: { board: board.slug },
-    }));
-  }*/

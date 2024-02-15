@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { jakarta } from './ui/fonts'
 import './globals.scss'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -16,7 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={jakarta.className}>
-        {children}
+        <ThemeProvider>
+          <section>
+            {children}
+          </section>
+        </ThemeProvider>
       </body>
     </html>
   )
