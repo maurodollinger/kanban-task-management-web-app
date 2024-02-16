@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react'
 import Image from "next/image";
 import { useTheme } from "./contexts/ThemeContext";
 import Card from "./ui/card";
@@ -9,17 +10,21 @@ import { useRouter } from "next/navigation";
 import { Login } from "./lib/login";
 import { useState } from "react";
 import { ThreeDots } from 'svg-loaders-react'
+import { useBoardContext } from "./contexts/BoardContext";
+import { faker } from '@faker-js/faker';
 
 export default function Home() {
   const { darkMode } = useTheme()
+  const { updateUserId } = useBoardContext();
   const router = useRouter();
-  const inputValue = 'user@kanban.com';
+  const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
   const handleLogin = () => {
     setIsLoading(true);
-    Login().then(() => {
+    Login(inputValue).then((userId) => {
+      updateUserId(userId);
       router.push('/dashboard');
     }).catch((error) => {
       setIsError(true);
@@ -28,6 +33,10 @@ export default function Home() {
       setIsLoading(false);
     })
   }
+
+  useEffect(() => {
+    setInputValue(faker.internet.email());
+  }, [])
 
   return (
     <main className="login">

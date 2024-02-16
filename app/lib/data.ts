@@ -3,12 +3,12 @@ import { unstable_noStore as noStore } from "next/cache";
 import { Board, Column, ColumnNamesByBoard, SubTaskData, TaskData, columnNames } from "./definitions";
 
 /* BOARDS */
-export async function fetchBoards() {
+export async function fetchBoards(userId: string) {
     noStore();
     try {
         console.log('Fetching boards data');
 
-        const data = await sql<Board>`SELECT name, slug, id FROM BOARDS`;
+        const data = await sql<Board>`SELECT name, slug, id FROM BOARDS WHERE user_id = ${userId}`;
 
         console.log('Data fetched completed');
 

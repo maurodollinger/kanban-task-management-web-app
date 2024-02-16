@@ -5,8 +5,8 @@ import { Column, SubTaskData, columnNames } from "./definitions";
 
 /* BOARDS */
 
-export async function getBoards() {
-    const boards = await fetchBoards();
+export async function getBoards(userId: string) {
+    const boards = await fetchBoards(userId);
     const columns = await fetchColumnsNames();
     return { boards: boards, columns: columns };
 }

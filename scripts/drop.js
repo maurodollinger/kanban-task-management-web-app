@@ -4,11 +4,11 @@ const { db } = require('@vercel/postgres');
 const cleanOldData = async () => {
     const client = await db.connect();
     try {
-        await client.query('DELETE FROM subtasks');
-        await client.query('DELETE FROM tasks');
-        await client.query('DELETE FROM columns');
-        await client.query('DELETE FROM boards');
-        await client.query('DELETE FROM users');
+        await client.query('DROP TABLE IF EXISTS subtasks');
+        await client.query('DROP TABLE IF EXISTS tasks');
+        await client.query('DROP TABLE IF EXISTS columns');
+        await client.query('DROP TABLE IF EXISTS boards');
+        await client.query('DROP TABLE IF EXISTS users');
     } catch (error) {
         console.error('Error cleaning old data:', error);
         throw error;
