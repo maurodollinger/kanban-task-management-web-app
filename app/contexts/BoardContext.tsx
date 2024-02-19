@@ -44,7 +44,6 @@ export const BoardProvider = ({ children }: BoardProviderProps) => {
     };
 
     const updateCurrentBoard = (updatedBoard: Board) => {
-        console.log(updatedBoard);
         setCurrentBoard(updatedBoard);
     }
 

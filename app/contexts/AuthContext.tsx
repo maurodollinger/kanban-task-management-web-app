@@ -16,8 +16,8 @@ const AuthContext = createContext<AuthContextProp | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
 
-    const storedUsername = localStorage.getItem('kanban-user');
-    const storedUserId = localStorage.getItem('kanban-userid');
+    const storedUsername = typeof window !== 'undefined' ? localStorage.getItem('kanban-user') : '';
+    const storedUserId = typeof window !== 'undefined' ? localStorage.getItem('kanban-userid') : '';
 
     const [user, setUser] = useState({
         username: storedUsername || '',
@@ -31,8 +31,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const userId = await Login(userData.username);
 
             setUser({ username: userData.username, id: userId });
-            localStorage.setItem('kanban-user', userData.username);
-            localStorage.setItem('kanban-userid', userId);
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('kanban-user', userData.username);
+                localStorage.setItem('kanban-userid', userId);
+            }
             setIsLogged(true);
 
             return userId;
@@ -46,8 +48,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const logout = () => {
         // Lógica para cerrar sesión y eliminar el usuario
         setUser({ username: '', id: '' });
-        localStorage.removeItem('kanban-user');
-        localStorage.removeItem('kanban-userid');
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('kanban-user');
+            localStorage.removeItem('kanban-userid');
+        }
         setIsLogged(false);
     };
 
