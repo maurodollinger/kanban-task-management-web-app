@@ -344,6 +344,7 @@
 .colorModeSwitch,
 .colorModeSwitchMobile {
     transition: fill 0.1s ease-in-out;
+    cursor: pointer;
 
     &:hover {
         svg rect:nth-child(2) {

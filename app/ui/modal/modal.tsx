@@ -1,6 +1,5 @@
 'use client';
 import { usePathname, useSearchParams } from "next/navigation";
-import Card from "../card";
 import './modal.scss';
 import Link from "next/link";
 import CreateBoard from "../board-modals/CreateBoard";
@@ -10,7 +9,7 @@ import EditBoard from "../board-modals/EditBoard";
 import ViewTask from "../board-modals/ViewTask";
 import Delete from "../board-modals/Delete";
 import { ModalProvider } from "@/app/contexts/ModalContext";
-import { MenuMobile } from "../menu-mobile/MenuMobile";
+import MenuMobile from "../menu-mobile/MenuMobile";
 
 export default function Modal() {
     const searchParams = useSearchParams();
@@ -24,7 +23,7 @@ export default function Modal() {
                     <Link href={pathname} onClick={(e) => e.stopPropagation()}>
                         <div className="modal-overlay" ></div>
                     </Link>
-                    <Card className={`modal ${modal === 'menu' && 'menu'}`}>
+                    <>
                         {modal === 'create-board' && <CreateBoard />}
                         {modal === 'create-task' && <CreateTask />}
                         {modal === 'edit-task' && <EditTask />}
@@ -32,7 +31,7 @@ export default function Modal() {
                         {modal === 'view-task' && <ViewTask />}
                         {modal === 'delete' && <Delete />}
                         {modal === 'menu' && <MenuMobile />}
-                    </Card>
+                    </>
                 </ModalProvider>
             )}
         </>

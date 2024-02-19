@@ -7,15 +7,14 @@ import Card from "./ui/card";
 import Button from "./ui/custom-button/button";
 import ColorModeSwitch from "./ui/sidenav/color-mode-switch";
 import { useRouter } from "next/navigation";
-import { Login } from "./lib/login";
 import { useState } from "react";
 import { ThreeDots } from 'svg-loaders-react'
-import { useBoardContext } from "./contexts/BoardContext";
 import { faker } from '@faker-js/faker';
+import { useAuth } from './contexts/AuthContext';
 
 export default function Home() {
+  const { login, isLogged } = useAuth();
   const { darkMode } = useTheme()
-  const { updateUserId } = useBoardContext();
   const router = useRouter();
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +22,11 @@ export default function Home() {
 
   const handleLogin = () => {
     setIsLoading(true);
-    Login(inputValue).then((userId) => {
-      updateUserId(userId);
+
+    const log = {
+      username: inputValue
+    }
+    login(log).then(() => {
       router.push('/dashboard');
     }).catch((error) => {
       setIsError(true);
@@ -37,6 +39,12 @@ export default function Home() {
   useEffect(() => {
     setInputValue(faker.internet.email());
   }, [])
+
+  useEffect(() => {
+    if (isLogged) {
+      router.push('/dashboard');
+    }
+  }, [isLogged, router]);
 
   return (
     <main className="login">
@@ -62,7 +70,7 @@ export default function Home() {
       <Card className="login-form">
         <input type="text" placeholder="admin@kanban.com" defaultValue={inputValue}></input>
         <Button buttonType="primary" onClick={handleLogin} disabled={isLoading}>
-          {isLoading ? <ThreeDots /> : 'Login'}
+          {isLoading ? <ThreeDots /> : 'Demo'}
         </Button>
         {isLoading && <label>Please wait, demo database are filling up</label>}
         {isError && <label className="error">There's been an error logging in, please try again later</label>}

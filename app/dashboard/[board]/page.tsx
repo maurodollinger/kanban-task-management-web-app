@@ -1,16 +1,27 @@
-import { fetchColumnsData } from '@/app/lib/data';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { TaskData } from '@/app/lib/definitions';
 import Card from '@/app/ui/card';
 import Button from '@/app/ui/custom-button/button';
 import Link from 'next/link';
+import { getColumnsData } from '@/app/lib/actions';
+import { TailSpin } from 'svg-loaders-react'
+import { useBoardContext } from '@/app/contexts/BoardContext';
 
+type ColumnType = {
+  name: string;
+  position: number;
+  tasks: TaskData[] | null;
+}
 
-async function getColumns(board: string) {
+async function getColumns(userId: string, boardSlug: string) {
   try {
-    const columnsData = await fetchColumnsData(board);
+    const columnsData = await getColumnsData(userId, boardSlug);
 
     const uniqueTypes = Array.from(new Set(columnsData.map(item => item.column_name)));
-    const columns: { name: string; position: number; tasks: TaskData[] | null; }[] = [];
+    const columns: ColumnType[] = [];
 
     uniqueTypes.forEach(type => {
       const filtered = columnsData.filter((col) => col.column_name === type)
@@ -32,13 +43,33 @@ async function getColumns(board: string) {
   }
 }
 
-export default async function Page({ params }: { params: { board: string } }) {
-  const columns = await getColumns(params.board);
+export default function Page({ params }: { params: { board: string } }) {
+  const { refresh } = useBoardContext();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
-  //console.log(columns, 'fetch columns');
+  const [columns, setColumns] = useState<ColumnType[]>([])
+
+  useEffect(() => {
+    if (user.id) {
+      getColumns(user.id, params.board).then((results: ColumnType[]) => {
+        if (results.length) {
+          setColumns([...results]);
+        }
+      }).finally(() => {
+        setIsLoading(false);
+      });
+    }
+  }, [user.id, params.board, refresh])
+
+
   return (
     <>
-      {
+      {isLoading ?
+        <div className='oval-loading'>
+          <TailSpin />
+        </div>
+        :
         (columns && columns.length > 0) ? (
           <>
             {/* TABLE HEADER*/}
@@ -88,13 +119,14 @@ export default async function Page({ params }: { params: { board: string } }) {
 
             </div>
           </>
+        ) : null}
+      {columns && columns.length === 0 && !isLoading &&
+        (
+          <div className='empty-board'>
+            <p className='heading-l'>This board is empty. Create a new column to get started</p>
+            <Link href='?modal=edit-board'><Button buttonType='primary'>+ Add New Column</Button></Link>
+          </div>
         )
-          : (
-            <div className='empty-board'>
-              <p className='heading-l'>This board is empty. Create a new column to get started</p>
-              <Link href='?modal=edit-board'><Button buttonType='primary'>+ Add New Column</Button></Link>
-            </div>
-          )
       }
     </>
   )

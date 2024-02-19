@@ -7,6 +7,7 @@ import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Board } from '@/app/lib/definitions';
 import { useBoardContext } from '@/app/contexts/BoardContext';
+import { TailSpin } from 'svg-loaders-react'
 
 export default function BoardLinks({ boards }: { boards: Board[] }) {
     const { updateCurrentBoard } = useBoardContext();
@@ -18,34 +19,41 @@ export default function BoardLinks({ boards }: { boards: Board[] }) {
     }
     return (
         <div className={styles.boardLinks}>
-            <p className='heading-s'>ALL BOARDS ({boards.length})</p>
-            <ul>
-                {boards.map((board, index) => (
+            {boards && boards.length ? (
+                <>
+                    <p className='heading-s'>ALL BOARDS ({boards.length})</p>
+                    <ul>
+                        {boards.map((board, index) => (
 
-                    <li className={`${(boardSlug === board.slug) ? styles.active : ''} heading-m`}
-                        key={index}>
+                            <li className={`${(boardSlug === board.slug) ? styles.active : ''} heading-m`}
+                                key={index}>
 
-                        <BoardIcon />
-                        {pathname === '/dashboard' ?
-                            <Link href={`/dashboard/${board.slug}`} onClick={() => handleBoardChange(board)}>
-                                {board.name}
-                            </Link>
-                            :
-                            <Link href={board.slug} onClick={() => handleBoardChange(board)}>
-                                {board.name}
-                            </Link>
-                        }
-                    </li>
+                                <BoardIcon />
+                                {pathname === '/dashboard' ?
+                                    <Link href={`/dashboard/${board.slug}`} onClick={() => handleBoardChange(board)}>
+                                        {board.name}
+                                    </Link>
+                                    :
+                                    <Link href={board.slug} onClick={() => handleBoardChange(board)}>
+                                        {board.name}
+                                    </Link>
+                                }
+                            </li>
 
-                ))}
-            </ul>
-            <Link href="?modal=create-board">
-                <button className={`${jakarta.className} ${styles.createNewBoard}`}>
-                    <BoardIcon />
-                    + Create New Board
-                </button>
-            </Link>
-
+                        ))}
+                    </ul>
+                    <Link href="?modal=create-board">
+                        <button className={`${jakarta.className} ${styles.createNewBoard}`}>
+                            <BoardIcon />
+                            + Create New Board
+                        </button>
+                    </Link>
+                </>
+            ) : (
+                <div className='oval-loading'>
+                    <TailSpin />
+                </div>
+            )}
         </div>
     )
 }

@@ -9,6 +9,7 @@ import Link from "next/link";
 import Button from "../custom-button/button";
 import Image from "next/image";
 import { useModal } from "@/app/contexts/ModalContext";
+import Card from "../card";
 
 
 export default function ViewTask() {
@@ -17,7 +18,7 @@ export default function ViewTask() {
     const [subtasks, setSubtasks] = useState<SubTaskData[] | undefined>([]);
     const [subtasksCompleted, setSubtasksCompleted] = useState(0);
     const [selectedOption, setSelectedOption] = useState<{ id: string, name: string }>({ id: '', name: '' });
-    const { currentColumns, currentBoard, updateBoards } = useBoardContext();
+    const { currentColumns, currentBoard, refreshData } = useBoardContext();
     const [popupVisible, setPopupVisible] = useState(false);
     const [columnChanged, setColumnChanged] = useState(false);
 
@@ -48,6 +49,7 @@ export default function ViewTask() {
                         const updatedValue = { ...currentSubtask, subtask_iscompleted: !currentSubtask.subtask_iscompleted };
                         const updatedSubtasks = subtasks.map((st) => (st.subtask_id === id ? updatedValue : st));
                         setSubtasks(updatedSubtasks);
+                        refreshData();
                     });
                 }
 
@@ -80,7 +82,7 @@ export default function ViewTask() {
             const column_id = selectedOption.id;
             if (newValue && taskId && column_id) {
                 updateTaskStatus(taskId, column_id, newValue).then(() => {
-                    updateBoards();
+                    refreshData();
                 }).finally(() => {
                     setColumnChanged(false);
                     if (currentBoard) router.push(`/dashboard/${currentBoard.slug}`);
@@ -90,7 +92,8 @@ export default function ViewTask() {
     }, [selectedOption, columnChanged])
 
     return (
-        <>
+        taskData &&
+        <Card className="modal">
             <div className="title-modal">
                 <h1 className="heading-l">{taskData?.task_title}</h1>
                 <div className="actions">
@@ -146,7 +149,7 @@ export default function ViewTask() {
                     </select>
                 </div>
             </div>
-        </>
+        </Card>
     )
 }
 

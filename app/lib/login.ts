@@ -5,7 +5,7 @@ import { VercelClient } from "@vercel/postgres";
 
 // seed.js
 const { db } = require('@vercel/postgres');
-const { boards } = require('./placeholder-data');
+const { boards } = require('./placeholder-data-min');
 
 
 // Insertar datos

@@ -5,15 +5,17 @@ import { Board, Column, ColumnNamesByBoard } from '../lib/definitions';
 import { useParams } from 'next/navigation';
 import { getBoards } from '../lib/actions';
 import { getRandomColumnName } from '../lib/utils';
+import { useAuth } from './AuthContext';
 
 
 interface BoardContextProp {
     boards: Board[],
     currentBoard: Board | null,
     currentColumns: Column[],
-    updateUserId: (id: string) => void,
+    refresh: boolean,
     updateBoards: () => void,
-    updateCurrentBoard: (updatedBoard: Board) => void
+    updateCurrentBoard: (updatedBoard: Board) => void,
+    refreshData: () => void
 }
 
 interface BoardProviderProps {
@@ -24,34 +26,35 @@ const BoardContext = createContext<BoardContextProp | undefined>(undefined);
 
 export const BoardProvider = ({ children }: BoardProviderProps) => {
     const { board: boardSlug } = useParams();
-    const [userId, setUserID] = useState('');
+    const { user } = useAuth();
     const [boards, setBoards] = useState<Board[]>([]);
     const [columnNames, setColumnNames] = useState<ColumnNamesByBoard[]>([]);
     const [currentBoard, setCurrentBoard] = useState<Board | null>(null);
     const [currentColumns, setCurrentColumns] = useState<Column[]>([])
+    const [refresh, setRefresh] = useState(false);
 
     const updateBoards = () => {
-        if (userId) {
-            getBoards(userId).then((result) => {
+        if (user.id) {
+            getBoards(user.id).then((result) => {
                 setBoards(result.boards);
                 setColumnNames(result.columns);
-
-                console.log(result.columns);
+                //  console.log(result.columns);
             });
         }
     };
 
     const updateCurrentBoard = (updatedBoard: Board) => {
+        console.log(updatedBoard);
         setCurrentBoard(updatedBoard);
     }
 
-    const updateUserId = (id: string) => {
-        setUserID(id);
+    const refreshData = () => {
+        setRefresh(prev => !prev);
     }
 
     useEffect(() => {
         updateBoards();
-    }, [userId])
+    }, [])
 
     useEffect(() => {
         if (boards !== undefined) {
@@ -72,7 +75,7 @@ export const BoardProvider = ({ children }: BoardProviderProps) => {
     }, [currentBoard]);
 
     return (
-        <BoardContext.Provider value={{ boards, currentBoard, currentColumns, updateUserId, updateBoards, updateCurrentBoard }}>
+        <BoardContext.Provider value={{ boards, currentBoard, currentColumns, refresh, updateBoards, updateCurrentBoard, refreshData }}>
             {children}
         </BoardContext.Provider>
     );

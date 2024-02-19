@@ -10,11 +10,14 @@ import { MyInput } from "../myInput";
 import { createSubTasks, createTask } from "@/app/lib/actions";
 import { getRandomSubtaskName } from "@/app/lib/utils";
 import { useModal } from "@/app/contexts/ModalContext";
+import Card from "../card";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 
 export default function CreateTask() {
+    const { user } = useAuth();
     const { router, pathname } = useModal();
-    const { currentColumns: statusColumns, updateBoards } = useBoardContext();
+    const { currentColumns: statusColumns, refreshData } = useBoardContext();
     const [selectedOption, setSelectedOption] = useState<{ name: string, id: string }>(statusColumns[0]);
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -31,7 +34,7 @@ export default function CreateTask() {
     }
 
     return (
-        <>
+        <Card className="modal">
             <h1 className="heading-l">Add New Task</h1>
             <Formik
                 initialValues={{
@@ -40,11 +43,12 @@ export default function CreateTask() {
                     subtasksValues: [generateNewSubtask()]
                 }}
                 onSubmit={(values) => {
+                    const user_id = user.id;
                     const title = values.title;
                     const description = values.description;
                     const column_id = selectedOption.id;
                     const status = selectedOption.name;
-                    const taskValues = { title, description, column_id, status }
+                    const taskValues = { user_id, title, description, column_id, status }
 
                     // console.log(values);
                     const taskPromise = createTask(taskValues);
@@ -57,12 +61,12 @@ export default function CreateTask() {
                                     .map(st => ({ subtask_title: st.name }));
 
                                 if (subtasksValues.length > 0) {
-                                    return createSubTasks(taskId, subtasksValues);
+                                    return createSubTasks(user.id, taskId, subtasksValues);
                                 }
                             }
                         })
                         .then(() => {
-                            updateBoards()
+                            refreshData()
                             router.push(pathname);
                         })
                         .catch((error) => {
@@ -117,7 +121,7 @@ export default function CreateTask() {
                     </FieldArray>
                 )}
             </Formik>
-        </>
+        </Card>
     )
 }
 

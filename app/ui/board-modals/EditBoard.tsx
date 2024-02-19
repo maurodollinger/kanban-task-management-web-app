@@ -9,13 +9,21 @@ import { getRandomColumnName } from "@/app/lib/utils";
 import { updateBoard } from "@/app/lib/actions";
 import { useModal } from "@/app/contexts/ModalContext";
 import { createValidationSchema } from "@/app/lib/validations";
+import Card from "../card";
 
 
 export default function EditBoard() {
+    const { refreshData } = useBoardContext();
     const { router } = useModal();
-    const { currentBoard, currentColumns, updateBoards, boards } = useBoardContext();
+    const { currentBoard, currentColumns, boards } = useBoardContext();
 
-    const boardNames = boards.map((b) => b.name);
+    const boardNames = boards.map((b) => {
+        if (currentBoard && b.name !== currentBoard.name) {
+            return b.name;
+        }
+        return '';
+    });
+
 
     const generateNewColumn = () => {
         return { name: '', placeholder: getRandomColumnName().placeholder };
@@ -23,7 +31,7 @@ export default function EditBoard() {
 
     return (
         currentBoard &&
-        <>
+        <Card className="modal">
             <h1 className="heading-l">Edit Board</h1>
             <Formik initialValues={{
                 boardName: currentBoard.name,
@@ -36,7 +44,7 @@ export default function EditBoard() {
                     const columns = values.columnNames;
                     updateBoard(id, boardName, columns).then(() => {
                         setSubmitting(false);
-                        updateBoards();
+                        refreshData();
                         router.push(`/dashboard/${currentBoard.slug}`);
                     })
                 }}>
@@ -67,13 +75,15 @@ export default function EditBoard() {
                                 </div>
                                 <div className="buttons-container">
                                     <Button buttonType="secondary" onClick={() => push(generateNewColumn())}>+ Add New Column</Button>
-                                    <Button buttonType="primary-s" type="submit" disabled={isSubmitting}>Save Changes</Button>
+                                    <Button buttonType="primary-s" type="submit" disabled={isSubmitting}>
+                                        Save Changes
+                                    </Button>
                                 </div>
                             </Form>
                         )}</FieldArray>
                 )}
             </Formik>
-        </>
+        </Card >
     )
 }
 

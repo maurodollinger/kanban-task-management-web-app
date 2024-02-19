@@ -10,11 +10,14 @@ import { useBoardContext } from "@/app/contexts/BoardContext";
 import { useModal } from "@/app/contexts/ModalContext";
 import { MyInput } from "../myInput";
 import { getRandomColumnName } from "@/app/lib/utils";
+import Card from "../card";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 
 export default function CreateBoard() {
     const { router } = useModal();
-    const { updateBoards, boards } = useBoardContext();
+    const { user } = useAuth();
+    const { updateBoards, refreshData, boards } = useBoardContext();
 
     const generateNewColumn = () => {
         return { name: '', placeholder: getRandomColumnName().placeholder };
@@ -23,7 +26,7 @@ export default function CreateBoard() {
     const boardNames = boards.map((b) => b.name);
 
     return (
-        <>
+        <Card className="modal">
             <h1 className="heading-l">Add New Board</h1>
             <Formik
                 initialValues={{
@@ -34,9 +37,10 @@ export default function CreateBoard() {
                 onSubmit={(values, { setSubmitting }) => {
                     const boardName = values.boardName;
                     const columns = values.columnNames;
-                    createBoard(boardName, columns).then((response) => {
+                    createBoard(user.id, boardName, columns).then((response) => {
                         setSubmitting(false);
                         updateBoards();
+                        refreshData();
                         router.push(`/dashboard/${response.slug}`);
                     })
                 }}>
@@ -77,7 +81,7 @@ export default function CreateBoard() {
                     </FieldArray>
                 )}
             </Formik>
-        </>
+        </Card>
     )
 }
 

@@ -10,10 +10,11 @@ import Button from '../custom-button/button';
 import Link from 'next/link';
 import { useBoardContext } from '@/app/contexts/BoardContext';
 import Popup from '../popup/popup';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function Header() {
     const { boards } = useBoardContext();
-
+    const { logout } = useAuth();
     const isMobile = useMediaQuery('only screen and (max-width: 600px)')
     const [hideOnMobile, setHideOnMobile] = useState(false);
     const { darkMode, sidebarHidden } = useTheme()
@@ -34,6 +35,7 @@ export default function Header() {
             if (board.slug === boardSlug) return board;
         });
         if (currentBoard) setBoardName(currentBoard.name);
+        else setBoardName('');
     }, [boards, boardSlug])
 
 
@@ -104,6 +106,7 @@ export default function Header() {
                     <Popup visible={popupVisible}>
                         <Link href='?modal=edit-board' onClick={handlePopUpVisible}><Button buttonType='primary-s'>Edit Board</Button></Link>
                         <Link href='?modal=delete&type=board' onClick={handlePopUpVisible}><Button buttonType='destructive' >Delete Board</Button></Link>
+                        <Button buttonType='destructive' onClick={logout}>Logout</Button>
                     </Popup>
                 </div>
             )}

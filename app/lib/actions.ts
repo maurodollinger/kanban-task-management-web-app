@@ -1,20 +1,20 @@
 'use server'
 
-import { getTaskByID, deleteBoardByID, addBoard, fetchBoards, fetchColumnsNames, addColumns, updateBoardNameByID, updateColumns, addTask, updateSubtaskStatusByID, updateTaskStatusByID, addSubTasks, updateTaskById, updateSubTasksByID, deleteTaskByID } from "./data";
+import { getTaskByID, deleteBoardByID, addBoard, fetchBoards, fetchColumnsNames, addColumns, updateBoardNameByID, updateColumns, addTask, updateSubtaskStatusByID, updateTaskStatusByID, addSubTasks, updateTaskById, updateSubTasksByID, deleteTaskByID, fetchColumnsData } from "./data";
 import { Column, SubTaskData, columnNames } from "./definitions";
 
 /* BOARDS */
 
 export async function getBoards(userId: string) {
     const boards = await fetchBoards(userId);
-    const columns = await fetchColumnsNames();
+    const columns = await fetchColumnsNames(userId);
     return { boards: boards, columns: columns };
 }
 
-export async function createBoard(boardName: string, columnNames: columnNames[]) {
+export async function createBoard(userId: string, boardName: string, columnNames: columnNames[]) {
     const slug = boardName.replace(/ /g, '-').toLowerCase();
-    const board_id = await addBoard(boardName, slug);
-    if (columnNames.length > 0) await createColumns(board_id, columnNames);
+    const board_id = await addBoard(userId, boardName, slug);
+    if (columnNames.length > 0) await createColumns(userId, board_id, columnNames);
     return { slug };
 }
 
@@ -35,8 +35,13 @@ export async function updateBoardName(boardId: string, boardName: string) {
 
 /* COLUMNS */
 
-export async function createColumns(board_id: string, columnNames: columnNames[]) {
-    const results = await addColumns(board_id, columnNames);
+export async function getColumnsData(userId: string, boardSlug: string) {
+    const columnsData = await fetchColumnsData(userId, boardSlug);
+    return columnsData;
+}
+
+export async function createColumns(userId: string, board_id: string, columnNames: columnNames[]) {
+    const results = await addColumns(userId, board_id, columnNames);
     return results;
 }
 
@@ -47,8 +52,8 @@ export async function getTask(taskId: string) {
     return results;
 }
 
-export async function createTask(taskValues: { title: string, description: string, column_id: string, status: string }) {
-    const task_id = await addTask(taskValues.title, taskValues.description, taskValues.column_id, taskValues.status);
+export async function createTask(taskValues: { user_id: string, title: string, description: string, column_id: string, status: string }) {
+    const task_id = await addTask(taskValues.user_id, taskValues.title, taskValues.description, taskValues.column_id, taskValues.status);
     return task_id;
 }
 
@@ -66,8 +71,8 @@ export async function deleteTask(id: string) {
 
 /* SUBTASKS */
 
-export async function createSubTasks(task_id: string, subTaskValues: { subtask_title: string }[]) {
-    await addSubTasks(task_id, subTaskValues);
+export async function createSubTasks(userId: string, task_id: string, subTaskValues: { subtask_title: string }[]) {
+    await addSubTasks(userId, task_id, subTaskValues);
 }
 
 export async function updateSubtasks(task_id: string, subtasks: SubTaskData[]) {

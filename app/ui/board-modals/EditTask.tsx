@@ -5,12 +5,13 @@ import Button from "../custom-button/button";
 import CrossIcon from '@/public/assets/icon-cross.svg';
 import { jakarta } from "../fonts";
 import { useBoardContext } from "@/app/contexts/BoardContext";
-import { SubTaskData, TaskData } from "@/app/lib/definitions";
+import { TaskData } from "@/app/lib/definitions";
 import { getTask, updateSubtasks, updateTask } from "@/app/lib/actions";
 import { useModal } from "@/app/contexts/ModalContext";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { MyInput } from "../myInput";
 import { getRandomSubtaskName } from "@/app/lib/utils";
+import Card from "../card";
 
 
 export default function EditTask() {
@@ -18,7 +19,7 @@ export default function EditTask() {
     const [taskData, setTaskData] = useState<TaskData>();
     const [subtasksInputs, setSubtasksInputs] = useState<{ name: string, id: string, placeholder: string }[]>([{ name: '', id: '', placeholder: getRandomSubtaskName().placeholder }]);
     const [selectedOption, setSelectedOption] = useState<{ id: string, name: string }>({ id: '', name: '' });
-    const { currentBoard, currentColumns } = useBoardContext();
+    const { currentBoard, currentColumns, refreshData } = useBoardContext();
 
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -57,7 +58,7 @@ export default function EditTask() {
 
     return (
         taskData &&
-        <>
+        <Card className="modal">
             <h1 className="heading-l">Edit Task</h1>
             <Formik
                 initialValues={{
@@ -65,7 +66,7 @@ export default function EditTask() {
                     description: taskData.task_description,
                     subtasksValues: subtasksInputs
                 }}
-                onSubmit={(values, { setSubmitting }) => {
+                onSubmit={async (values, { setSubmitting }) => {
                     const title = values.title;
                     const description = values.description || '';
                     const status = selectedOption.name;
@@ -79,19 +80,32 @@ export default function EditTask() {
                             column_id,
                             status
                         }
-                        updateTask(taskValues).then(() => {
-                            const subtasks: SubTaskData[] = [];
-                            values.subtasksValues.forEach((st) => {
+                        try {
+                            await updateTask(taskValues);
+
+                            const subtasks = values.subtasksValues.map((st) => {
                                 const title = st.name;
                                 const id = st.id;
-                                if (title !== '' && id) subtasks.push({ subtask_id: id, subtask_title: title, })
-                                else subtasks.push({ subtask_id: '', subtask_title: title })
-                            })
-                            if (subtasks.length > 0) updateSubtasks(taskId, subtasks);
-                        }).finally(() => {
+                                return {
+                                    subtask_id: id || '',
+                                    subtask_title: title,
+                                };
+                            });
+
+                            if (subtasks.length > 0) {
+                                await updateSubtasks(taskId, subtasks);
+                            }
+
+                            refreshData();
+                            if (currentBoard) {
+                                router.push(`/dashboard/${currentBoard.slug}`);
+                            }
+                        } catch (error) {
+                            console.error('Error updating task:', error);
+                            // Manejar el error aquí si es necesario
+                        } finally {
                             setSubmitting(false);
-                            if (currentBoard) router.push(`/dashboard/${currentBoard.slug}`);
-                        });
+                        }
                     }
                 }}>
                 {({ isSubmitting, values }) => (
@@ -142,7 +156,7 @@ export default function EditTask() {
                     </FieldArray>
                 )}
             </Formik>
-        </>
+        </Card>
     )
 }
 

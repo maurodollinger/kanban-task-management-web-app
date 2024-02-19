@@ -20,13 +20,13 @@ export async function fetchBoards(userId: string) {
     }
 }
 
-export async function addBoard(name: string, slug: string) {
+export async function addBoard(userId: string, name: string, slug: string) {
     try {
         console.log('Inserting data to boards');
 
         const result = await sql`INSERT INTO 
-                                        boards(id,name,slug)
-                                        VALUES(uuid_generate_v4(),${name},${slug})
+                                        boards(id,user_id,name,slug)
+                                        VALUES(uuid_generate_v4(),${userId},${name},${slug})
                                         RETURNING id AS board_id`;
 
         console.log('Inserted complete');
@@ -51,6 +51,13 @@ export async function deleteBoardByID(id: string) {
 
         if (associatedColumns.rows.length > 0) {
             for (const column of associatedColumns.rows) {
+                const associatedTasks = await sql`SELECT id FROM tasks WHERE column_id = ${column.id}`;
+
+                if (associatedTasks.rows.length > 0) {
+                    for (const task of associatedTasks.rows) {
+                        await deleteTaskByID(task.id);
+                    }
+                }
                 await sql`DELETE FROM COLUMNS WHERE id = ${column.id}`;
             }
         }
@@ -87,7 +94,7 @@ export async function updateBoardNameByID(boardId: string, newName: string) {
 
 /* COLUMNS */
 
-export async function fetchColumnsNames() {
+export async function fetchColumnsNames(userId: string) {
     noStore();
     try {
 
@@ -98,6 +105,7 @@ export async function fetchColumnsNames() {
                                 json_agg(json_build_object('name',c.name,'id',c.id,'position',c.position)) AS board_columns
                                 FROM BOARDS b 
                                 JOIN columns c ON c.board_id = b.id
+                                WHERE b.user_id = ${userId}
                                 GROUP BY b.slug;
                                 `;
 
@@ -111,7 +119,7 @@ export async function fetchColumnsNames() {
     }
 }
 
-export async function fetchColumnsData(boardSlug: string) {
+export async function fetchColumnsData(userId: string, boardSlug: string) {
     noStore();
     try {
         console.log('Fetching columns data');
@@ -130,7 +138,9 @@ export async function fetchColumnsData(boardSlug: string) {
                             LEFT JOIN
                                 tasks t ON c.id = t.column_id
                             WHERE
-                                b.slug = ${boardSlug};`
+                                b.user_id = ${userId}
+                            AND b.slug = ${boardSlug};
+                            `
 
         console.log('Columns data fetched complete');
 
@@ -142,13 +152,15 @@ export async function fetchColumnsData(boardSlug: string) {
     }
 }
 
-export async function addColumns(board_id: string, columnNames: columnNames[]) {
+export async function addColumns(userId: string, board_id: string, columnNames: columnNames[]) {
     try {
         console.log('Inserting data to columns');
 
         for (const [index, column] of columnNames.entries()) {
-            await sql`INSERT INTO columns(id, board_id, name, position)
-                      VALUES(uuid_generate_v4(), ${board_id}, ${column.name}, ${index})`;
+            if (column.name !== '') {
+                await sql`INSERT INTO columns(id, user_id, board_id, name, position)
+                          VALUES(uuid_generate_v4(), ${userId}, ${board_id}, ${column.name}, ${index})`;
+            }
         }
 
         console.log('Inserted complete');
@@ -255,13 +267,13 @@ export async function getTaskByID(id: string) {
     }
 }
 
-export async function addTask(title: string, description: string, column_id: string, status: string) {
+export async function addTask(userId: string, title: string, description: string, column_id: string, status: string) {
     try {
         console.log('Inserting data to tasks');
 
         const result = await sql`INSERT INTO 
-                                        tasks(id,column_id,title,description,status)
-                                        VALUES(uuid_generate_v4(),${column_id},${title},${description},${status})
+                                        tasks(id,user_id,column_id,title,description,status)
+                                        VALUES(uuid_generate_v4(),${userId},${column_id},${title},${description},${status})
                                         RETURNING id AS task_id`;
 
         console.log('Inserted complete');
@@ -340,14 +352,14 @@ export async function deleteTaskByID(id: string) {
 
 /* SUBTASKS */
 
-export async function addSubTasks(task_id: string, subtasks: SubTaskData[]) {
+export async function addSubTasks(userId: string, task_id: string, subtasks: SubTaskData[]) {
     try {
         console.log('Inserting data to subtask');
 
         for (const subtask of subtasks) {
             await sql`INSERT INTO 
-                subtasks(id,task_id,title,iscompleted)
-                VALUES(uuid_generate_v4(),${task_id},${subtask.subtask_title},false)`;
+                subtasks(id,user_id,task_id,title,iscompleted)
+                VALUES(uuid_generate_v4(),${userId},${task_id},${subtask.subtask_title},false)`;
         }
 
 

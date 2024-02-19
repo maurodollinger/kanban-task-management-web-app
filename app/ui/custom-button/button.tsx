@@ -1,3 +1,5 @@
+import { ThreeDots } from 'svg-loaders-react'
+
 type Props = {
     children: React.ReactNode;
     buttonType: string;
@@ -11,12 +13,12 @@ export default function Button({ children, buttonType, type = 'button', disabled
         <button className={`custom-button ${buttonType}`} onClick={onClick} type={type} disabled={disabled}>
             {(buttonType === 'primary-s' || buttonType === 'secondary' || buttonType === 'destructive') && (
                 <p>
-                    {children}
+                    {disabled ? <ThreeDots /> : children}
                 </p>
             )}
             {buttonType === 'primary' && (
                 <p className="heading-m">
-                    {children}
+                    {disabled ? <ThreeDots /> : children}
                 </p>
             )}
         </button>
