@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { VercelClient } from "@vercel/postgres";
+import { fetchBoards } from "./data";
 
 // seed.js
 const { db } = require('@vercel/postgres');
@@ -54,9 +55,10 @@ export const Login = async (userUsername: string) => {
 
     const userId = await createUser(client, userUsername);
     await insertData(client, userId);
+    const boards = await fetchBoards(userId);
 
     await client.end();
 
-    return userId;
+    return { userId, boards };
 };
 

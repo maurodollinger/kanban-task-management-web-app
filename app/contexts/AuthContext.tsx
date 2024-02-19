@@ -3,11 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import { Login } from '../lib/login';
+import { Board } from '../lib/definitions';
 
 interface AuthContextProp {
     user: { username: string, id: string },
     isLogged: boolean;
-    login: (userData: { username: string }) => Promise<string>;
+    login: (userData: { username: string }) => Promise<Board[]>;
     logout: () => void;
 }
 
@@ -28,7 +29,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const login = async (userData: { username: string }) => {
         try {
-            const userId = await Login(userData.username);
+            const data = await Login(userData.username);
+            const userId = data.userId;
+            const boards = data.boards;
 
             setUser({ username: userData.username, id: userId });
             if (typeof window !== 'undefined') {
@@ -37,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
             setIsLogged(true);
 
-            return userId;
+            return boards;
         } catch (error) {
             console.error('Error al iniciar sesión:', error);
             throw error;

@@ -11,9 +11,11 @@ import { useState } from "react";
 import { ThreeDots } from 'svg-loaders-react'
 import { faker } from '@faker-js/faker';
 import { useAuth } from './contexts/AuthContext';
+import { useBoardContext } from './contexts/BoardContext';
 
 export default function Home() {
   const { login, isLogged } = useAuth();
+  const { setInitBoards } = useBoardContext();
   const { darkMode } = useTheme()
   const router = useRouter();
   const [inputValue, setInputValue] = useState('');
@@ -26,7 +28,8 @@ export default function Home() {
     const log = {
       username: inputValue
     }
-    login(log).then(() => {
+    login(log).then((boards) => {
+      setInitBoards(boards);
       router.push('/dashboard');
     }).catch((error) => {
       setIsError(true);

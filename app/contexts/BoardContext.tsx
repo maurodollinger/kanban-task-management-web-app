@@ -13,6 +13,7 @@ interface BoardContextProp {
     currentBoard: Board | null,
     currentColumns: Column[],
     refresh: boolean,
+    setInitBoards: (boards: Board[]) => void,
     updateBoards: () => void,
     updateCurrentBoard: (updatedBoard: Board) => void,
     refreshData: () => void
@@ -42,6 +43,10 @@ export const BoardProvider = ({ children }: BoardProviderProps) => {
             });
         }
     };
+
+    const setInitBoards = (boards: Board[]) => {
+        setBoards(boards);
+    }
 
     const updateCurrentBoard = (updatedBoard: Board) => {
         setCurrentBoard(updatedBoard);
@@ -74,7 +79,7 @@ export const BoardProvider = ({ children }: BoardProviderProps) => {
     }, [currentBoard]);
 
     return (
-        <BoardContext.Provider value={{ boards, currentBoard, currentColumns, refresh, updateBoards, updateCurrentBoard, refreshData }}>
+        <BoardContext.Provider value={{ boards, currentBoard, currentColumns, refresh, setInitBoards, updateBoards, updateCurrentBoard, refreshData }}>
             {children}
         </BoardContext.Provider>
     );
