@@ -1,6 +1,6 @@
 import { sql } from "@vercel/postgres";
 import { unstable_noStore as noStore } from "next/cache";
-import { Board, Column, ColumnNamesByBoard, SubTaskData, TaskData, columnNames } from "./definitions";
+import { Board, Column, ColumnNamesByBoard, ColumnType, SubTaskData, TaskData, columnNames } from "./definitions";
 
 /* BOARDS */
 export async function fetchBoards(userId: string) {
@@ -115,7 +115,7 @@ export async function fetchColumnsNames(userId: string) {
     }
     catch (error) {
         console.error('Database error: ', error);
-        throw new Error('Failed to fetch Tasks data')
+        throw new Error('Failed to fetch columns data')
     }
 }
 
@@ -125,10 +125,12 @@ export async function fetchColumnsData(userId: string, boardSlug: string) {
         console.log('Fetching columns data');
 
         const data = await sql<TaskData>`SELECT
+                                c.id AS column_id,
                                 c.name AS column_name,
                                 c.position AS column_position,
                                 t.title AS task_title,
-                                t.id as task_id,
+                                t.id AS task_id,
+                                t.position AS task_position,
                                 (SELECT COUNT(*) FROM subtasks st WHERE st.task_id = t.id) AS subtasks_count,
                                 (SELECT COUNT(*) FROM subtasks st WHERE st.task_id = t.id AND st.iscompleted = true) AS subtasks_completed
                             FROM
@@ -139,7 +141,9 @@ export async function fetchColumnsData(userId: string, boardSlug: string) {
                                 tasks t ON c.id = t.column_id
                             WHERE
                                 b.user_id = ${userId}
-                            AND b.slug = ${boardSlug};
+                            AND b.slug = ${boardSlug}
+                            ORDER BY 
+                                c.position, t.position;
                             `
 
         console.log('Columns data fetched complete');
@@ -173,6 +177,64 @@ export async function addColumns(userId: string, board_id: string, columnNames: 
     }
 }
 
+export async function updateTasksAcrossColumns(column: ColumnType) {
+    noStore();
+    try {
+        console.log('Updating tasks across column');
+
+        const existingTasks = await sql`
+            SELECT id
+            FROM tasks
+            WHERE column_id = ${column.id}
+        `;
+
+        const updatedTasks = column.tasks;
+
+        if (updatedTasks) {
+            if (existingTasks.rows) {
+
+            }
+            else {
+
+            }
+            for (const task of updatedTasks) {
+                const updatedTask = existingTasks.rows.find((t) => t.id === task.task_id)
+                console.log(updatedTask);
+                if (!updatedTask) {
+                    //deleteTaskByID(task.task_id)
+                }
+            }
+        }
+
+    }
+    catch (error) {
+        console.error('Database error: ', error);
+        throw new Error('Failed to update tasks on column');
+    }
+};
+
+export async function updateTasksPositionsByColumn(column: ColumnType) {
+    noStore();
+    try {
+        console.log('Updating tasks on column');
+
+        const updatedTasks = column.tasks;
+
+        if (updatedTasks) {
+            for (const [index, task] of updatedTasks.entries()) {
+                await sql`UPDATE tasks 
+                            set position = ${index}
+                            WHERE id = ${task.task_id};`
+            }
+        }
+
+    }
+    catch (error) {
+        console.error('Database error: ', error);
+        throw new Error('Failed to update tasks on column');
+    }
+};
+
 export async function updateColumns(board_id: string, updatedColumns: Column[]) {
     noStore();
     try {
@@ -199,6 +261,12 @@ export async function updateColumns(board_id: string, updatedColumns: Column[]) 
                 position++;
             } else {
                 // Si la columna no existe en la lista actualizada, eliminar
+                const existingTasks = await sql`SELECT id FROM tasks WHERE column_id = ${existingColumn.id}`;
+
+                for (const existingTask of existingTasks.rows) {
+                    await sql`DELETE FROM tasks WHERE id = ${existingTask.id}`;
+                }
+
                 await sql`
                     DELETE FROM columns
                     WHERE id = ${existingColumn.id} AND board_id = ${board_id}
@@ -225,6 +293,21 @@ export async function updateColumns(board_id: string, updatedColumns: Column[]) 
 }
 
 /* TASKS */
+
+export async function getColumnTasksByID(id: string) {
+    noStore();
+    try {
+        console.log('Getting tasks by column_id');
+
+        const tasks = await sql`SELECT position FROM tasks WHERE column_id = ${id}`;
+
+        return tasks.rows;
+
+    } catch (error) {
+        console.log('Database error', error);
+        throw new Error('Failed getting tasks by id');
+    }
+}
 
 export async function getTaskByID(id: string) {
 
@@ -267,13 +350,15 @@ export async function getTaskByID(id: string) {
     }
 }
 
-export async function addTask(userId: string, title: string, description: string, column_id: string, status: string) {
+export async function addTask(userId: string, title: string, description: string, column_id: string, status: string, position: number) {
+    noStore();
     try {
         console.log('Inserting data to tasks');
 
+
         const result = await sql`INSERT INTO 
-                                        tasks(id,user_id,column_id,title,description,status)
-                                        VALUES(uuid_generate_v4(),${userId},${column_id},${title},${description},${status})
+                                        tasks(id,user_id,column_id,title,description,status,position)
+                                        VALUES(uuid_generate_v4(),${userId},${column_id},${title},${description},${status},${position})
                                         RETURNING id AS task_id`;
 
         console.log('Inserted complete');
@@ -282,7 +367,7 @@ export async function addTask(userId: string, title: string, description: string
     }
     catch (error) {
         console.error('Database error: ', error);
-        throw new Error('Failed to add taks');
+        throw new Error('Failed to add tasks');
     }
 }
 
@@ -352,14 +437,33 @@ export async function deleteTaskByID(id: string) {
 
 /* SUBTASKS */
 
-export async function addSubTasks(userId: string, task_id: string, subtasks: SubTaskData[]) {
+export async function getSubTasksByID(userId: string, task_id: string) {
+    noStore();
     try {
-        console.log('Inserting data to subtask');
+        console.log('Fetching subtasks');
+
+
+        const subtasks = await sql`SELECT * FROM 
+            subtasks WHERE task_id = ${task_id} AND user_id = ${userId}`;
+
+        console.log('Fetching complete', subtasks);
+        return subtasks.rows;
+    }
+    catch (error) {
+        console.error('Database error: ', error);
+        throw new Error('Failed to Fetch taks');
+    }
+}
+
+export async function addSubTasks(userId: string, task_id: string, subtasks: SubTaskData[]) {
+    noStore();
+    try {
+        console.log('Inserting data to subtask', userId, task_id, subtasks);
 
         for (const subtask of subtasks) {
             await sql`INSERT INTO 
-                subtasks(id,user_id,task_id,title,iscompleted)
-                VALUES(uuid_generate_v4(),${userId},${task_id},${subtask.subtask_title},false)`;
+                   subtasks(id,user_id,task_id,title,iscompleted)
+                   VALUES(uuid_generate_v4(),${userId},${task_id},${subtask.subtask_title},${subtask.subtask_iscompleted})`;
         }
 
 
@@ -367,19 +471,20 @@ export async function addSubTasks(userId: string, task_id: string, subtasks: Sub
     }
     catch (error) {
         console.error('Database error: ', error);
-        throw new Error('Failed to add taks');
+        throw new Error('Failed to add tasks');
     }
 }
 
-export async function updateSubTasksByID(task_id: string, subtasks: SubTaskData[]) {
+export async function updateSubTasksByID(user_id: string, task_id: string, subtasks: SubTaskData[]) {
     noStore();
     try {
-        console.log('Updating data of subtask', subtasks);
+        console.log('Updating data of subtask');
 
         const existingSubtasks = await sql`
             SELECT id, title
             FROM subtasks
             WHERE task_id = ${task_id}
+            AND user_id = ${user_id}
         `;
 
         for (const existingSubtask of existingSubtasks.rows) {
@@ -390,13 +495,13 @@ export async function updateSubTasksByID(task_id: string, subtasks: SubTaskData[
                 await sql`
                     UPDATE subtasks
                     SET title = ${updatedSubtask.subtask_title}
-                    WHERE id = ${updatedSubtask.subtask_id} AND task_id = ${task_id}
+                    WHERE id = ${updatedSubtask.subtask_id} AND task_id = ${task_id} AND user_id = ${user_id}
                 `;
             } else {
                 // Si la columna no existe en la lista actualizada, eliminar
                 await sql`
                     DELETE FROM subtasks
-                    WHERE id = ${existingSubtask.id} AND task_id = ${task_id}
+                    WHERE id = ${existingSubtask.id} AND task_id = ${task_id} AND user_id = ${user_id}
                 `;
             }
         }
@@ -405,8 +510,8 @@ export async function updateSubTasksByID(task_id: string, subtasks: SubTaskData[
         for (const updatedSubtask of subtasks) {
             if (!updatedSubtask.subtask_id) {
                 await sql`INSERT INTO 
-                subtasks(id,task_id,title,iscompleted)
-                VALUES(uuid_generate_v4(),${task_id},${updatedSubtask.subtask_title},false)`;
+                subtasks(id,user_id,task_id,title,iscompleted)
+                VALUES(uuid_generate_v4(),${user_id},${task_id},${updatedSubtask.subtask_title},false)`;
             }
         }
 

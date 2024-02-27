@@ -10,19 +10,25 @@ import { updateBoard } from "@/app/lib/actions";
 import { useModal } from "@/app/contexts/ModalContext";
 import { createValidationSchema } from "@/app/lib/validations";
 import Card from "../card";
+import { useEffect } from "react";
 
 
 export default function EditBoard() {
     const { refreshData } = useBoardContext();
     const { router } = useModal();
-    const { currentBoard, currentColumns, boards } = useBoardContext();
+    const { currentBoard, currentColumns, boards, updateBoards } = useBoardContext();
+    let boardNames = [''];
 
-    const boardNames = boards.map((b) => {
-        if (currentBoard && b.name !== currentBoard.name) {
-            return b.name;
-        }
-        return '';
-    });
+    useEffect(() => {
+        console.log(currentBoard, currentColumns);
+        boardNames = boards.map((b) => {
+            if (currentBoard && b.name !== currentBoard.name) {
+                return b.name;
+            }
+            return '';
+        });
+    }, [currentBoard, boards, currentColumns])
+
 
 
     const generateNewColumn = () => {
@@ -44,6 +50,7 @@ export default function EditBoard() {
                     const columns = values.columnNames;
                     updateBoard(id, boardName, columns).then(() => {
                         setSubmitting(false);
+                        updateBoards();
                         refreshData();
                         router.push(`/dashboard/${currentBoard.slug}`);
                     })

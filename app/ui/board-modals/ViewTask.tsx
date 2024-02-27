@@ -61,15 +61,17 @@ export default function ViewTask() {
     useEffect(() => {
         if (taskId != undefined) {
             getTask(taskId).then((result) => {
-                setTaskData(result[0]);
-                const _taskdata = result[0];
-                const subtasks = _taskdata.subtasks_data;
-                const column_id = _taskdata.task_column_id;
-                if (_taskdata.task_status) setSelectedOption({ id: column_id, name: _taskdata.task_status })
-                if (subtasks && subtasks.length > 0) {
-                    setSubtasks(subtasks);
-                    const completedSubtasks = subtasks.filter(subtask => subtask.subtask_iscompleted === true);
-                    setSubtasksCompleted(completedSubtasks.length);
+                if (result.length > 0) {
+                    setTaskData(result[0]);
+                    const _taskdata = result[0];
+                    const subtasks = _taskdata.subtasks_data;
+                    const column_id = _taskdata.task_column_id;
+                    if (_taskdata.task_status) setSelectedOption({ id: column_id, name: _taskdata.task_status })
+                    if (subtasks && subtasks.length > 0) {
+                        setSubtasks(subtasks);
+                        const completedSubtasks = subtasks.filter(subtask => subtask.subtask_iscompleted === true);
+                        setSubtasksCompleted(completedSubtasks.length);
+                    }
                 }
             });
         }
@@ -140,13 +142,13 @@ export default function ViewTask() {
                 }
                 <div className="input-group">
                     <label className="body-m">Current Status</label>
-                    <select id="dropdown" value={selectedOption.name} onChange={handleSelectChange} className="dropdown-select">
+                    {selectedOption && <select id="dropdown" value={selectedOption.name} onChange={handleSelectChange} className="dropdown-select">
                         {currentColumns && currentColumns.map((option, index) => (
                             <option key={index} value={option.name} data-id={option.id} className="dropdown-option">
                                 {option.name}
                             </option>
                         ))}
-                    </select>
+                    </select>}
                 </div>
             </div>
         </Card>

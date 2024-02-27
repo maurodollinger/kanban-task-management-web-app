@@ -12,9 +12,11 @@ import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { MyInput } from "../myInput";
 import { getRandomSubtaskName } from "@/app/lib/utils";
 import Card from "../card";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 
 export default function EditTask() {
+    const { user } = useAuth();
     const { taskId, router } = useModal();
     const [taskData, setTaskData] = useState<TaskData>();
     const [subtasksInputs, setSubtasksInputs] = useState<{ name: string, id: string, placeholder: string }[]>([{ name: '', id: '', placeholder: getRandomSubtaskName().placeholder }]);
@@ -67,19 +69,54 @@ export default function EditTask() {
                     subtasksValues: subtasksInputs
                 }}
                 onSubmit={async (values, { setSubmitting }) => {
+                    const user_id = user.id;
                     const title = values.title;
                     const description = values.description || '';
                     const status = selectedOption.name;
                     const id = taskId;
                     const column_id = selectedOption.id;
+
                     if (id) {
+
                         const taskValues = {
+                            user_id,
                             id,
                             title,
                             description,
                             column_id,
                             status
                         }
+                        const taskPromise = updateTask(taskValues);
+
+                        taskPromise
+                            .then(() => {
+                                const subtasks = values.subtasksValues.map((st) => {
+                                    const title = st.name;
+                                    const id = st.id;
+                                    return {
+                                        subtask_id: id || '',
+                                        subtask_title: title,
+                                    };
+
+                                });
+                                if (subtasks.length > 0) {
+                                    updateSubtasks(user.id, taskId, subtasks);
+                                }
+                            })
+                            .then(() => {
+                                refreshData();
+                                if (currentBoard) {
+                                    router.push(`/dashboard/${currentBoard.slug}`);
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error updating task:', error);
+                            })
+                            .finally(() => {
+                                setSubmitting(false);
+                            })
+
+                        /*
                         try {
                             await updateTask(taskValues);
 
@@ -105,7 +142,7 @@ export default function EditTask() {
                             // Manejar el error aquí si es necesario
                         } finally {
                             setSubmitting(false);
-                        }
+                        }*/
                     }
                 }}>
                 {({ isSubmitting, values }) => (

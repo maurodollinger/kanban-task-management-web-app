@@ -1,18 +1,17 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../custom-button/button";
 import CrossIcon from '@/public/assets/icon-cross.svg';
 import { jakarta } from "../fonts";
 import { useBoardContext } from "@/app/contexts/BoardContext";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { MyInput } from "../myInput";
-import { createSubTasks, createTask } from "@/app/lib/actions";
 import { getRandomSubtaskName } from "@/app/lib/utils";
 import { useModal } from "@/app/contexts/ModalContext";
 import Card from "../card";
 import { useAuth } from "@/app/contexts/AuthContext";
-
+import { createSubTasks, createTask, getTasksByColumn } from "@/app/lib/actions";
 
 export default function CreateTask() {
     const { user } = useAuth();
@@ -29,9 +28,14 @@ export default function CreateTask() {
         }
     };
 
+
     const generateNewSubtask = () => {
         return { name: '', placeholder: getRandomSubtaskName().placeholder };
     }
+
+    useEffect(() => {
+        setSelectedOption(statusColumns[0])
+    }, [])
 
     return (
         <Card className="modal">
@@ -48,17 +52,27 @@ export default function CreateTask() {
                     const description = values.description;
                     const column_id = selectedOption.id;
                     const status = selectedOption.name;
-                    const taskValues = { user_id, title, description, column_id, status }
 
-                    // console.log(values);
-                    const taskPromise = createTask(taskValues);
+
+                    const taskPromise = getTasksByColumn(column_id);
 
                     taskPromise
+                        .then((tasks) => {
+                            if (tasks.length > 0) return tasks[tasks.length - 1].position;
+                            else return null;
+                        })
+                        .then((lastPosition) => {
+                            const position = lastPosition === null ? 0 : +lastPosition + 1;
+                            const taskValues = { user_id, title, description, column_id, status, position }
+
+                            const taskId = createTask(taskValues);
+                            return taskId;
+                        })
                         .then((taskId) => {
                             if (taskId && values.subtasksValues.length > 0) {
                                 const subtasksValues = values.subtasksValues
                                     .filter(st => st.name !== '')
-                                    .map(st => ({ subtask_title: st.name }));
+                                    .map(st => ({ subtask_title: st.name, subtask_iscompleted: false }));
 
                                 if (subtasksValues.length > 0) {
                                     return createSubTasks(user.id, taskId, subtasksValues);
@@ -72,6 +86,7 @@ export default function CreateTask() {
                         .catch((error) => {
                             console.error('Error:', error);
                         });
+
                 }}>
                 {({ isSubmitting, values }) => (
                     <FieldArray name="subtasksValues">
@@ -104,6 +119,7 @@ export default function CreateTask() {
                                     </div>
                                     <div className="input-group">
                                         <label className="body-m">Status</label>
+
                                         <Field as="select" name="status" id="dropdown" value={selectedOption.name} onChange={handleSelectChange} className="dropdown-select">
                                             {statusColumns && statusColumns.map((option, index) => (
                                                 <option key={index} value={option.name} data-id={option.id} className="dropdown-option">
