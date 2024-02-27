@@ -17,18 +17,20 @@ const insertData = async (client: VercelClient, userId: string) => {
             const boardResult = await client.query('INSERT INTO boards (user_id, name, slug) VALUES ($1, $2, $3) RETURNING id', [userId, board.name, board.slug]);
             const boardId = boardResult.rows[0].id;
 
-            let position = 1;
+            let position = 0;
             for (const column of board.columns) {
                 const columnResult = await client.query('INSERT INTO columns (user_id, board_id, name, position) VALUES ($1, $2, $3, $4 ) RETURNING id', [userId, boardId, column.name, position]);
                 const columnId = columnResult.rows[0].id;
 
+                let task_position = 0;
                 for (const task of column.tasks) {
-                    const taskResult = await client.query('INSERT INTO tasks (user_id, column_id, title, description, status) VALUES ($1, $2, $3, $4, $5) RETURNING id', [userId, columnId, task.title, task.description, task.status]);
+                    const taskResult = await client.query('INSERT INTO tasks (user_id, column_id, title, description, status, position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id', [userId, columnId, task.title, task.description, task.status, task_position]);
                     const taskId = taskResult.rows[0].id;
 
                     for (const subtask of task.subtasks) {
                         await client.query('INSERT INTO subtasks (user_id, task_id, title, isCompleted) VALUES ($1, $2, $3, $4)', [userId, taskId, subtask.title, subtask.isCompleted]);
                     }
+                    task_position++;
                 }
                 position++;
             }

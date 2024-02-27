@@ -24,8 +24,11 @@ interface Subtask {
     isCompleted: boolean;
 }
 
+
 // FOR API
 interface TaskData {
+    user_id: string;
+    column_id: string;
     column_name: string;
     column_position: number;
     task_title: string;
@@ -33,6 +36,7 @@ interface TaskData {
     task_column_id: string;
     task_status?: string;
     task_description?: string;
+    task_position: number;
     subtasks_count?: string;
     subtasks_completed?: string;
     subtasks_data?: SubTaskData[]
@@ -55,9 +59,17 @@ type columnNames = {
     name: string
 }
 
+type ColumnType = {
+    id: string;
+    name: string;
+    position: number;
+    tasks: TaskData[] | null;
+}
+
+
 export type PageProps = {
     children: React.ReactNode;
     boards: Board[]
 };
 
-export type { RootObject, Board, Column, Task, Subtask, TaskData, SubTaskData, ColumnNamesByBoard, columnNames };
+export type { RootObject, Board, Column, Task, Subtask, TaskData, SubTaskData, ColumnNamesByBoard, columnNames, ColumnType };

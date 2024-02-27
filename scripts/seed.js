@@ -54,7 +54,7 @@ const createColumns = async (client) => {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
-    await client.sql`CREATE SEQUENCE IF NOT EXISTS columns_position_seq START 1;`;
+    await client.sql`CREATE SEQUENCE IF NOT EXISTS columns_position_seq START 0;`;
 
     await client.sql`
       CREATE TABLE IF NOT EXISTS columns (
@@ -91,6 +91,7 @@ const createTasks = async (client) => {
         title TEXT NOT NULL,
         description TEXT,
         status TEXT NOT NULL,
+        position INT NOT NULL,
         FOREIGN KEY (column_id) REFERENCES columns (id)
         )
     `;
@@ -147,18 +148,20 @@ const insertData = async (client, userId) => {
       const boardResult = await client.query('INSERT INTO boards (user_id, name, slug) VALUES ($1, $2, $3) RETURNING id', [userId, board.name, board.slug]);
       const boardId = boardResult.rows[0].id;
 
-      let position = 1;
+      let position = 0;
       for (const column of board.columns) {
         const columnResult = await client.query('INSERT INTO columns (user_id, board_id, name, position) VALUES ($1, $2, $3, $4 ) RETURNING id', [userId, boardId, column.name, position]);
         const columnId = columnResult.rows[0].id;
 
+        let task_position = 0;
         for (const task of column.tasks) {
-          const taskResult = await client.query('INSERT INTO tasks (user_id, column_id, title, description, status) VALUES ($1, $2, $3, $4, $5) RETURNING id', [userId, columnId, task.title, task.description, task.status]);
+          const taskResult = await client.query('INSERT INTO tasks (user_id, column_id, title, description, status, position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id', [userId, columnId, task.title, task.description, task.status, task_position]);
           const taskId = taskResult.rows[0].id;
 
           for (const subtask of task.subtasks) {
             await client.query('INSERT INTO subtasks (user_id, task_id, title, isCompleted) VALUES ($1, $2, $3, $4)', [userId, taskId, subtask.title, subtask.isCompleted]);
           }
+          task_position++;
         }
         position++;
       }
@@ -173,11 +176,12 @@ const insertData = async (client, userId) => {
 const seedDatabase = async () => {
   const client = await db.connect();
 
-  /* await client.query('DELETE FROM subtasks');
-   await client.query('DELETE FROM tasks');
-   await client.query('DELETE FROM columns');
-   await client.query('DELETE FROM boards');
-   await client.query('DELETE FROM users');*/
+  /*
+  await client.query('DELETE FROM subtasks');
+  await client.query('DELETE FROM tasks');
+  await client.query('DELETE FROM columns');
+  await client.query('DELETE FROM board');
+  await client.query('DELETE FROM users');*/
 
   await createUsersTable(client);
   await createBoards(client);

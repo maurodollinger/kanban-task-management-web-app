@@ -17,6 +17,6 @@ const cleanOldData = async () => {
 
 // Llamada a la función antes de borrar los datos
 cleanOldData()
-    .then(() => console.log('Delete successful'))
-    .catch((error) => console.error('Delete error:', error))
+    .then(() => console.log('Drop successful'))
+    .catch((error) => console.error('Drop error:', error))
     .finally(() => db.end());
