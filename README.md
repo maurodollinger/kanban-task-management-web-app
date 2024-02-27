@@ -43,7 +43,7 @@ Users should be able to:
 
 ### Links
 
-- Solution URL: [Add solution URL here](https://your-solution-url.com)
+- Solution URL: [Github](https://github.com/maurodollinger/kanban-task-management-web-app)
 - Live Site URL: [kanban-task-management-web-app-mauve.vercel.app](https://kanban-task-management-web-app-mauve.vercel.app/)
 
 ## My process
