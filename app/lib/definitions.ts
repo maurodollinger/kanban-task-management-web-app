@@ -8,6 +8,7 @@ interface Board {
     columns: Column[];
 }
 interface Column {
+    position: number;
     id: string;
     name: string;
     tasks?: (Task | Task)[];

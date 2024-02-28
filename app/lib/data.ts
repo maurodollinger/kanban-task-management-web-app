@@ -242,12 +242,11 @@ export async function updateColumns(board_id: string, updatedColumns: Column[]) 
 
         // Obtener todas las columnas existentes para el board_id
         const existingColumns = await sql`
-            SELECT id, name
+            SELECT id, name, position
             FROM columns
             WHERE board_id = ${board_id}
         `;
 
-        let position = 1;
         // Comparar y actualizar las columnas
         for (const existingColumn of existingColumns.rows) {
             const updatedColumn = updatedColumns.find((c) => c.id === existingColumn.id);
@@ -255,10 +254,9 @@ export async function updateColumns(board_id: string, updatedColumns: Column[]) 
                 // Si la columna existe en ambas listas, actualizar
                 await sql`
                     UPDATE columns
-                    SET name = ${updatedColumn.name}, position = ${position}
+                    SET name = ${updatedColumn.name}, position = ${updatedColumn.position}
                     WHERE id = ${updatedColumn.id} AND board_id = ${board_id}
                 `;
-                position++;
             } else {
                 // Si la columna no existe en la lista actualizada, eliminar
                 const existingTasks = await sql`SELECT id FROM tasks WHERE column_id = ${existingColumn.id}`;
@@ -279,9 +277,8 @@ export async function updateColumns(board_id: string, updatedColumns: Column[]) 
             if (!updatedColumn.id) {
                 await sql`
                     INSERT INTO columns(id, board_id, name, position)
-                    VALUES(uuid_generate_v4(), ${board_id}, ${updatedColumn.name}, ${position})
+                    VALUES(uuid_generate_v4(), ${board_id}, ${updatedColumn.name}, ${updatedColumn.position})
                 `;
-                position++;
             }
         }
 

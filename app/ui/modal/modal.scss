@@ -70,12 +70,19 @@
     }
 
     .input-new {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 1rem;
 
         >input {
             flex-grow: 1;
+        }
+
+        .drag-handle {
+            cursor: pointer;
+            top: 1rem;
+            right: 2.5rem;
         }
     }
 

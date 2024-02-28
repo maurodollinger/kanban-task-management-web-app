@@ -72,6 +72,7 @@ export const ColumnsProvider = ({ children, boardSlug }: ColumnsProviderProps) =
         if (user.id && !isLoading) {
             setIsLoading(true);
             getColumns(user.id, boardSlug).then((results: ColumnType[]) => {
+                console.log(results);
                 if (results.length) {
                     setColumns([...results]);
                 }

@@ -1,16 +1,14 @@
 'use client';
 
-import Button from "../custom-button/button";
-import CrossIcon from '@/public/assets/icon-cross.svg';
+
 import { useBoardContext } from "@/app/contexts/BoardContext";
-import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
-import { MyInput } from "../myInput";
-import { getRandomColumnName } from "@/app/lib/utils";
+import { Formik } from "formik";
 import { updateBoard } from "@/app/lib/actions";
 import { useModal } from "@/app/contexts/ModalContext";
 import { createValidationSchema } from "@/app/lib/validations";
 import Card from "../card";
 import { useEffect } from "react";
+import { FieldArrayContainer } from "./draggable-helpers/FieldArrayContainer";
 
 
 export default function EditBoard() {
@@ -20,7 +18,6 @@ export default function EditBoard() {
     let boardNames = [''];
 
     useEffect(() => {
-        console.log(currentBoard, currentColumns);
         boardNames = boards.map((b) => {
             if (currentBoard && b.name !== currentBoard.name) {
                 return b.name;
@@ -29,11 +26,6 @@ export default function EditBoard() {
         });
     }, [currentBoard, boards, currentColumns])
 
-
-
-    const generateNewColumn = () => {
-        return { name: '', placeholder: getRandomColumnName().placeholder };
-    }
 
     return (
         currentBoard &&
@@ -48,6 +40,7 @@ export default function EditBoard() {
                     const id = currentBoard.id;
                     const boardName = values.boardName;
                     const columns = values.columnNames;
+                    console.log(columns);
                     updateBoard(id, boardName, columns).then(() => {
                         setSubmitting(false);
                         updateBoards();
@@ -55,40 +48,7 @@ export default function EditBoard() {
                         router.push(`/dashboard/${currentBoard.slug}`);
                     })
                 }}>
-                {({ isSubmitting, values }) => (
-                    <FieldArray name="columnNames">
-                        {({ push, remove }) => (
-                            <Form>
-                                <div className="inputs-container">
-                                    <div className="input-group">
-                                        <label className="body-m">Board Name</label>
-                                        <Field name="boardName" placeholder="e.g. Web Design" component={MyInput} />
-                                        <ErrorMessage component="span" name="boardName" />
-                                    </div>
-                                    <div className="input-group">
-                                        {values.columnNames && values.columnNames.length > 0 && <label className="body-m">Board Columns</label>}
-                                        <div className="inputs-new-container">
-                                            {values.columnNames && values.columnNames.map((input, index) => (
-                                                <div className="input-new" key={index}>
-                                                    <Field name={`columnNames[${index}].name`} placeholder={`e.g. ${input.placeholder}`} component={MyInput} />
-                                                    <button type="button" onClick={() => remove(index)}>
-                                                        <CrossIcon />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div className="buttons-container">
-                                    <Button buttonType="secondary" onClick={() => push(generateNewColumn())}>+ Add New Column</Button>
-                                    <Button buttonType="primary-s" type="submit" disabled={isSubmitting}>
-                                        Save Changes
-                                    </Button>
-                                </div>
-                            </Form>
-                        )}</FieldArray>
-                )}
+                <FieldArrayContainer type="edit" />
             </Formik>
         </Card >
     )

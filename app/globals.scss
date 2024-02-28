@@ -291,3 +291,27 @@ button {
   height: 100%;
   width: 100%;
 }
+
+.drag-handle {
+  position: absolute;
+  display: inline-block;
+  width: .75rem;
+  height: .5rem;
+  right: .5rem;
+  top: .75rem;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 33%;
+  }
+
+  &,
+  &::before {
+    background-image: radial-gradient(var(--Medium-Grey) 40%, transparent 40%);
+    background-size: 4px 4px;
+    background-position: 0 100%;
+    background-repeat: repeat-x;
+  }
+}

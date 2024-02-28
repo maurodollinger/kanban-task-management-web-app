@@ -74,6 +74,7 @@ export const BoardProvider = ({ children }: BoardProviderProps) => {
             for (let i = 0; i < names.length; i++) {
                 columns.push({ name: names[i].name, position: names[i].position, id: names[i].id, placeholder: getRandomColumnName().placeholder })
             }
+            columns.sort((a, b) => a.position - b.position);
             setCurrentColumns(columns);
         }
     }, [currentBoard]);

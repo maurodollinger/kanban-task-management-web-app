@@ -221,8 +221,7 @@ export function TableBodyDraggable() {
             onDragOver={handleDragOver}
         >
             {
-                /* <SortableContext items={columns.map((i) => i.id)}>
-                     {*/
+
                 columns.map((col, index) => (
                     (col.tasks && col.tasks.length > 0) ? (
                         <SortableContext key={index} items={col.tasks.map(i => i.task_id)}>
@@ -240,8 +239,6 @@ export function TableBodyDraggable() {
                         </SortableContext>
                     )
                 ))
-                /*< }
-             /SortableContext>*/
             }
         </DndContext>
     )
