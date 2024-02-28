@@ -28,7 +28,7 @@ Users should be able to:
 - Mark subtasks as complete and move tasks between columns &#9989;
 - Hide/show the board sidebar &#9989;
 - Toggle the theme between light/dark modes &#9989;
-- **Bonus**: Allow users to drag and drop tasks to change their status and re-order them in a column
+- **Bonus**: Allow users to drag and drop tasks to change their status and re-order them in a column &#9989;
 - **Bonus**: Keep track of any changes, even after refreshing the browser (`localStorage` could be used for this if you're not building out a full-stack app) &#9989;
 - **Bonus**: Build this project as a full-stack application &#9989;
 

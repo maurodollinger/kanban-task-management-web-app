@@ -40,7 +40,6 @@ export default function EditBoard() {
                     const id = currentBoard.id;
                     const boardName = values.boardName;
                     const columns = values.columnNames;
-                    console.log(columns);
                     updateBoard(id, boardName, columns).then(() => {
                         setSubmitting(false);
                         updateBoards();
